@@ -1,0 +1,39 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <group
+        android:translateX="10"
+        android:translateY="10"
+        android:scaleX="0.8"
+        android:scaleY="0.8">
+        <!-- Book Wings (Purple) -->
+        <path
+            android:fillColor="#C17BE1"
+            android:pathData="M48,45 C48,35 30,35 25,60 L25,80 C25,90 40,85 48,95 Z"/>
+        <path
+            android:fillColor="#C17BE1"
+            android:pathData="M52,45 C52,35 70,35 75,60 L75,80 C75,90 60,85 52,95 Z"/>
+
+        <!-- Person Head (Negative space) -->
+        <path
+            android:fillColor="#E8D0F1"
+            android:pathData="M50,48 m-8,0 a8,8 0 1,1 16,0 a8,8 0 1,1 -16,0"/>
+
+        <!-- Graduation Cap (Black) -->
+        <path
+            android:fillColor="#000000"
+            android:pathData="M15,35 L35,20 L55,35 L35,50 Z"/>
+        <path
+            android:fillColor="#000000"
+            android:pathData="M25,40 L25,48 C25,52 45,52 45,48 L45,40"/>
+        <path
+            android:strokeColor="#000000"
+            android:strokeWidth="1.5"
+            android:pathData="M18,37 L20,60"/>
+        <path
+            android:fillColor="#000000"
+            android:pathData="M20,60 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0"/>
+    </group>
+</vector>

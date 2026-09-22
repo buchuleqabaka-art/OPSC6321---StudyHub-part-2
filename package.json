@@ -1,0 +1,17 @@
+{
+  "name": "studyhub-api",
+  "version": "1.0.0",
+  "description": "REST API for the StudyHub Android app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.5.0"
+  }
+}
