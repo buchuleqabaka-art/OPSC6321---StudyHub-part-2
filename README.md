@@ -10,9 +10,7 @@ priorities, schedule study sessions, chat with their group and track their
 progress — all synced live through Firebase.
 
 > Module: OPSC6311/6312 — Part 2, App Prototype Development
-> YouTube video Link : https://youtu.be/l2lSKYYWNUc
-
-
+> YouTube video Link : https://youtu.be/l2lSKYYWNUc 
 
 ---
 
@@ -109,7 +107,7 @@ Three sign-in paths all land in the same Firebase user record:
 Firebase's email-enumeration protection makes `fetchSignInMethodsForEmail`
 return an empty list, and opening the `users` collection to unauthenticated
 reads would leak every student's address. StudyHub instead keeps an
-`emailIndex` collection keyed by the **SHA-256 hash** of the email. It is
+`emailIndex` collection keyed by the **SHA-256 hash** and **SHA-1 hash**  of the email. It is
 readable before sign-in, but contains only digests and cannot be listed, so it
 answers "is this address registered?" without exposing anyone's email.
 
@@ -216,11 +214,6 @@ StudyHub/
 └── firestore.rules           # Security rules
 ```
 
-## Use of AI tools
-
-_Replace this section with your own write-up (maximum 500 words) covering which
-AI tools you used, for what, and how you verified the output. Be specific: name
-the files or features, and describe what you changed afterwards._
 
 ## References
 
