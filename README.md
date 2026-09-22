@@ -7,10 +7,10 @@
 StudyHub is an Android study-group organiser built in Kotlin with Jetpack
 Compose. Students create study groups, assign tasks with due dates and
 priorities, schedule study sessions, chat with their group and track their
-progress — all synced live through Firebase.
+progress all synced live through Firebase.
 
-> Module: OPSC6311/6312 — Part 2, App Prototype Development
-> YouTube video Link : https://youtu.be/l2lSKYYWNUc 
+> Module: OPSC6312 — Part 2, App Prototype Development
+> YouTube video Link : https://youtu.be/l2lSKYYWNUc
 
 ---
 
@@ -148,9 +148,9 @@ URL into `API_BASE_URL` in `app/build.gradle.kts`.
 3. Download `google-services.json` and drop it into `app/`.
 4. **Authentication > Sign-in method**, enable:
    - Email/Password
-   - Google — then copy the **Web client ID** into `GOOGLE_WEB_CLIENT_ID` in
+   - Google - then copy the **Web client ID** into `GOOGLE_WEB_CLIENT_ID` in
      `app/build.gradle.kts`
-   - Apple — requires an Apple Developer account; set the Services ID, Team ID,
+   - Apple - requires an Apple Developer account; set the Services ID, Team ID,
      Key ID and private key
 5. Add your debug **SHA-1** fingerprint under Project settings (needed for
    Google sign-in):
@@ -163,8 +163,7 @@ URL into `API_BASE_URL` in `app/build.gradle.kts`.
 ## Running the project
 
 ```bash
-git clone https://github.com/<your-username>/StudyHub.git
-cd StudyHub
+git clone https: https://github.com/buchuleqabaka-art/OPSC6321---StudyHub-part-2
 # add app/google-services.json, then open in Android Studio and sync
 ./gradlew assembleDebug
 ```
