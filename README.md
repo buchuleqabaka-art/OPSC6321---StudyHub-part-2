@@ -11,6 +11,8 @@ progress all synced live through Firebase.
 
 > Module: OPSC6312 — Part 2, App Prototype Development
 > YouTube video Link : https://youtu.be/l2lSKYYWNUc
+> OneDrive video link : https://advtechonline-my.sharepoint.com/:v:/g/personal/st10451595_rcconnect_edu_za/IQDsszlr3TyQSYvBvqP-LCJxAXc8ZFFGmFYxSNpa5CDmusQ?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=fzgDqs
+
 
 ---
 
