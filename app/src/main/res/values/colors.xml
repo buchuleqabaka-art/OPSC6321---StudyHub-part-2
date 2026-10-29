@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="lilac_background">#FFE3C6E8</color>
+    <color name="lilac_primary">#FFC77DE8</color>
+    <color name="lilac_primary_dark">#FFA855C9</color>
+    <color name="lilac_surface">#FFF2E3F5</color>
+    <color name="ink">#FF1C1B1F</color>
+    <color name="ink_muted">#FF6B6B6B</color>
+    <color name="priority_high">#FFFF8A80</color>
+    <color name="priority_medium">#FFFFF3A0</color>
+    <color name="priority_low">#FFA8E6B0</color>
+    <color name="dark_background">#FF1B141E</color>
+    <color name="dark_surface">#FF2A2030</color>
+</resources>

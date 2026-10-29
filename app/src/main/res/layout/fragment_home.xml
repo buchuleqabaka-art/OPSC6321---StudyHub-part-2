@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lilac_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/tv_greeting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Good day, Student"
+            android:textColor="@color/ink"
+            android:textSize="29sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_home_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Your study space is ready. What are we working on?"
+            android:textColor="@color/ink_muted"
+            android:textSize="14sp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/lilac_primary_dark"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="A thought for today"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_quote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Small consistent effort beats one long night before the deadline."
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_quote_author"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:gravity="end"
+                    android:text="— StudyHub"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal">
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="92dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/lilac_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_group_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/ink" android:textSize="25sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Groups" android:textColor="@color/ink_muted" android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="92dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/lilac_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_task_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/ink" android:textSize="25sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="To do" android:textColor="@color/ink_muted" android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="92dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/lilac_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_session_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/ink" android:textSize="25sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sessions" android:textColor="@color/ink_muted" android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Your study space"
+            android:textColor="@color/ink"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_home_groups"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:text="Groups"
+                android:textAllCaps="false"
+                app:backgroundTint="@color/lilac_primary_dark"
+                app:cornerRadius="18dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_home_tasks"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:text="Tasks"
+                android:textAllCaps="false"
+                android:textColor="@color/ink"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/lilac_primary_dark" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_home_calendar"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="Calendar"
+                android:textAllCaps="false"
+                android:textColor="@color/ink"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/lilac_primary_dark" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_home_sessions"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="Sessions"
+                android:textAllCaps="false"
+                android:textColor="@color/ink"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/lilac_primary_dark" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_home_chats"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:text="Chat"
+                android:textAllCaps="false"
+                android:textColor="@color/ink"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/lilac_primary_dark" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Upcoming tasks" android:textColor="@color/ink" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/link_all_tasks" android:layout_width="wrap_content" android:layout_height="48dp" android:gravity="center" android:text="See all" android:textColor="@color/lilac_primary_dark" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/container_upcoming_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Next study session" android:textColor="@color/ink" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/link_all_sessions" android:layout_width="wrap_content" android:layout_height="48dp" android:gravity="center" android:text="See all" android:textColor="@color/lilac_primary_dark" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/container_upcoming_sessions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

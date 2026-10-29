@@ -1,0 +1,19 @@
+<resources>
+    <style name="Base.Theme.StudyHub" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lilac_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/lilac_primary</item>
+        <item name="android:colorAccent">@color/lilac_primary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/lilac_background</item>
+        <item name="android:navigationBarColor">@color/lilac_background</item>
+        <item name="android:windowBackground">@color/lilac_background</item>
+    </style>
+
+    <style name="Theme.StudyHub" parent="Base.Theme.StudyHub" />
+
+    <style name="Widget.StudyHub.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">24dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/group_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="5dp"
+    app:cardBackgroundColor="@color/lilac_surface"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:rippleColor="@color/lilac_primary">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="17dp">
+        <TextView android:id="@+id/group_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/ink" android:textSize="18sp" android:textStyle="bold" />
+        <TextView android:id="@+id/group_subject" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/lilac_primary_dark" android:textSize="14sp" android:textStyle="bold" />
+        <TextView android:id="@+id/group_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/ink_muted" android:textSize="14sp" />
+        <TextView android:id="@+id/group_members" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/ink_muted" android:textSize="12sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

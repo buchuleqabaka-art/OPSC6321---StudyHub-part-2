@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lilac_background">#FF1B141E</color>
+    <color name="lilac_primary">#FFC77DE8</color>
+    <color name="lilac_primary_dark">#FFD9B7E0</color>
+    <color name="lilac_surface">#FF2A2030</color>
+    <color name="ink">#FFF7EDF9</color>
+    <color name="ink_muted">#FFCBBFCE</color>
+    <color name="priority_high">#FFFF8A80</color>
+    <color name="priority_medium">#FFFFF3A0</color>
+    <color name="priority_low">#FFA8E6B0</color>
+</resources>
