@@ -1,0 +1,11 @@
+<resources>
+    <style name="Base.Theme.StudyHub" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lilac_primary</item>
+        <item name="colorOnPrimary">@color/ink</item>
+        <item name="colorSecondary">@color/lilac_primary_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/lilac_background</item>
+        <item name="android:navigationBarColor">@color/lilac_background</item>
+        <item name="android:windowBackground">@color/lilac_background</item>
+    </style>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    app:cardBackgroundColor="@color/lilac_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+        <TextView android:id="@+id/message_sender" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/lilac_primary_dark" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:id="@+id/message_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="@color/ink" android:textSize="15sp" />
+        <TextView android:id="@+id/message_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="end" android:textColor="@color/ink_muted" android:textSize="11sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
