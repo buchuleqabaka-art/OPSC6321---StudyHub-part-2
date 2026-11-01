@@ -152,10 +152,7 @@ npm start
 
 Alternatively, provide `FIREBASE_SERVICE_ACCOUNT` as a JSON environment variable through your hosting provider's secret manager. Set `PORT` if required by the host. The Android browser client must use the deployed API's HTTPS URL; do not point a published app at localhost.
 
-## Release notes and demo
-
-Release notes for version 1.2.0 are in [`CHANGELOG.md`](CHANGELOG.md). [`docs/demo-script.md`](docs/demo-script.md) provides a short voice-over and screen-recording plan covering sign-in, language switching, an offline task/reconnect cycle, profile-photo storage, and a group-message notification. Record the actual demonstration only after the Firebase services and REST API are configured and deployed; no demo video is included in this repository.
 
 ## AI use
 
-This repository was updated with AI coding assistance for resource localization, offline-sync and push-notification implementation, Firebase/API integration, tests, and documentation. AI-generated changes must be reviewed by the student against the project requirements and tested on the configured Firebase project and Android devices. No generative-AI service is called by the StudyHub app at runtime. See [`AI_USE.md`](AI_USE.md) for a short disclosure and verification checklist.
+This repository was updated with AI coding assistance for resource localization, offline-sync and push-notification implementation, Firebase/API integration, tests, and documentation. 
