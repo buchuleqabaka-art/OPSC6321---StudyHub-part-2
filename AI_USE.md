@@ -12,8 +12,3 @@ The AI was used as a development aid, not as a runtime feature. StudyHub does no
 - A local Gradle build/test could not be run in the development environment because Java/JDK was unavailable. The GitHub Actions workflow is configured to run the unit tests and debug build; confirm its result before submission.
 - Firebase Storage/Firestore rules and live sign-in, notification, API, and photo-upload flows still need verification against the configured Firebase project and real/emulated devices.
 
-## Suggested citation wording
-
-> Arena.ai Agent Mode. (2026). *AI coding assistance for StudyHub OPSC6321 final-submission implementation* [AI-assisted development tool]. Used for code scaffolding, localization, offline synchronization, notification/API integration, tests, and documentation; reviewed and verified by the student before submission.
-
-Adjust the citation to the lecturer's prescribed style and describe the actual review/testing you personally completed. Do not claim a manual verification step that has not been done.
