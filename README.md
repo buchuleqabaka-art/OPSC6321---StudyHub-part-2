@@ -4,7 +4,7 @@
 
 StudyHub is an Android study-group organiser for South African students. Create study groups, share resources, track tasks and deadlines, schedule sessions, and chat with group members. This release strengthens the prototype with offline-first task synchronization, account-aware push notifications, profile-photo cloud storage, and complete English/Afrikaans/isiZulu UI localization.
 
-> **Module:** OPSC6321 — final StudyHub submission
+> **Module:** OPSC6321 - final StudyHub submission
 >
 > **Android application ID:** `com.studyhub.app`
 >
