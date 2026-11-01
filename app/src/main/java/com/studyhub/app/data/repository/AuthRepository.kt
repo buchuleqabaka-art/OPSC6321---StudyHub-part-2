@@ -18,10 +18,10 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.studyhub.app.BuildConfig
+import com.studyhub.app.R
 import com.studyhub.app.data.model.UserProfile
 import com.studyhub.app.util.AuthError
 import com.studyhub.app.util.AuthField
-import com.studyhub.app.util.PasswordSecurity
 import kotlinx.coroutines.tasks.await
 import java.security.MessageDigest
 
@@ -61,7 +61,7 @@ class AuthRepository(
         return try {
             val doc = firestore.collection(EMAIL_INDEX).document(key).get().await()
             val exists = doc.exists()
-            Log.d(TAG, "emailExists check for ${maskEmail(email)} -> $exists")
+            Log.d(TAG, "Email index lookup completed: $exists")
             exists
         } catch (e: Exception) {
             Log.w(TAG, "emailExists lookup failed, assuming unknown", e)
@@ -99,7 +99,7 @@ class AuthRepository(
         return try {
             // Firebase hashes the password with scrypt server-side; the raw value
             // never leaves this call and is never persisted by the app.
-            Log.d(TAG, "Registering ${maskEmail(cleanEmail)} pwdPrint=${PasswordSecurity.fingerprint(password)}")
+            Log.d(TAG, "Creating an account")
             val result = auth.createUserWithEmailAndPassword(cleanEmail, password).await()
             val uid = result.user?.uid ?: return Result.failure(
                 IllegalStateException("Firebase returned no user")
@@ -116,11 +116,11 @@ class AuthRepository(
             indexEmail(cleanEmail)
             Result.success(profile)
         } catch (e: FirebaseAuthUserCollisionException) {
-            Result.failure(AuthException(AuthError(AuthField.EMAIL, "That email is already registered. Try logging in instead.")))
+            Result.failure(AuthException(AuthError(AuthField.EMAIL, R.string.error_email_exists)))
         } catch (e: FirebaseAuthWeakPasswordException) {
-            Result.failure(AuthException(AuthError(AuthField.PASSWORD, "Password is too weak. Use at least 8 characters with a number.")))
+            Result.failure(AuthException(AuthError(AuthField.PASSWORD, R.string.error_password_weak)))
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            Result.failure(AuthException(AuthError(AuthField.EMAIL, "That email address is not valid.")))
+            Result.failure(AuthException(AuthError(AuthField.EMAIL, R.string.error_email_not_valid)))
         } catch (e: Exception) {
             Log.e(TAG, "Registration failed", e)
             Result.failure(AuthException(AuthError(AuthField.GENERAL, friendlyMessage(e))))
@@ -139,15 +139,15 @@ class AuthRepository(
             Result.success(loadOrCreateProfile(uid, cleanEmail, result.user?.displayName.orEmpty(), "password"))
         } catch (e: FirebaseAuthInvalidUserException) {
             // No account for this address - flag the email field, not the password
-            Result.failure(AuthException(AuthError(AuthField.EMAIL, "This email is not registered. Check the address or create an account.")))
+            Result.failure(AuthException(AuthError(AuthField.EMAIL, R.string.error_email_unregistered)))
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             // Could be a bad password OR a non-existent account when enumeration
             // protection is on, so ask Firestore which one it actually is.
             val known = emailExists(cleanEmail)
             if (!known) {
-                Result.failure(AuthException(AuthError(AuthField.EMAIL, "This email is not registered. Check the address or create an account.")))
+                Result.failure(AuthException(AuthError(AuthField.EMAIL, R.string.error_email_unregistered)))
             } else {
-                Result.failure(AuthException(AuthError(AuthField.PASSWORD, "Incorrect password. Try again or reset it.")))
+                Result.failure(AuthException(AuthError(AuthField.PASSWORD, R.string.error_incorrect_password)))
             }
         } catch (e: Exception) {
             Log.e(TAG, "Login failed", e)
@@ -180,7 +180,7 @@ class AuthRepository(
             if (credential !is CustomCredential ||
                 credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
-                return Result.failure(AuthException(AuthError(AuthField.GENERAL, "Unexpected Google credential type.")))
+                return Result.failure(AuthException(AuthError(AuthField.GENERAL, R.string.error_google_credential)))
             }
 
             val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
@@ -202,9 +202,9 @@ class AuthRepository(
         } catch (e: GetCredentialException) {
             Log.e(TAG, "Google Sign-in failed: ${e.message}", e)
             val errorMessage = if (e.message?.contains("cancel", ignoreCase = true) == true) {
-                "Sign-in was cancelled."
+                R.string.error_google_cancelled
             } else {
-                "Google Sign-in failed. Please verify your SHA-1 fingerprint and Web Client ID in the Firebase Console."
+                R.string.error_google_configuration
             }
             Result.failure(AuthException(AuthError(AuthField.GENERAL, errorMessage)))
         } catch (e: Exception) {
@@ -220,7 +220,7 @@ class AuthRepository(
         val cleanEmail = email.trim().lowercase()
         if (!emailExists(cleanEmail)) {
             return Result.failure(
-                AuthException(AuthError(AuthField.EMAIL, "This email is not registered."))
+                AuthException(AuthError(AuthField.EMAIL, R.string.error_not_registered))
             )
         }
         return try {
@@ -232,7 +232,7 @@ class AuthRepository(
     }
 
     fun signOut() {
-        Log.d(TAG, "Signing out ${auth.currentUser?.uid}")
+        Log.d(TAG, "Signing out current account")
         auth.signOut()
     }
 
@@ -272,23 +272,18 @@ class AuthRepository(
         return profile
     }
 
-    private fun friendlyMessage(e: Exception): String = when {
+    private fun friendlyMessage(e: Exception): Int = when {
         e.message?.contains("network", ignoreCase = true) == true ->
-            "No internet connection. Check your network and try again."
+            R.string.error_network
         e.message?.contains("permission-denied", ignoreCase = true) == true ||
         e.message?.contains("permission denied", ignoreCase = true) == true ->
-            "Firestore Permission Denied. Check your security rules in the Firebase Console."
+            R.string.error_firestore_permission
         e.message?.contains("web client id", ignoreCase = true) == true ->
-            "Social Sign-in is not configured. The Web Client ID is missing or invalid."
-        else -> e.localizedMessage ?: "Something went wrong. Please try again."
+            R.string.error_google_configuration
+        else -> R.string.error_generic
     }
 
-    private fun maskEmail(email: String): String {
-        val at = email.indexOf('@')
-        if (at <= 1) return "***"
-        return email.first() + "***" + email.substring(at)
-    }
 }
 
 /** Carries the field-specific error up to the UI layer. */
-class AuthException(val error: AuthError) : Exception(error.message)
+class AuthException(val error: AuthError) : Exception()

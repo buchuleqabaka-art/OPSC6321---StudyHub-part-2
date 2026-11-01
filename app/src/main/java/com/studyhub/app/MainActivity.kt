@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.studyhub.app.databinding.ActivityMainBinding
+import com.studyhub.app.notifications.PushRegistration
 import com.studyhub.app.ui.navigation.Routes
 import com.studyhub.app.ui.navigation.StudyHubNavigator
 import com.studyhub.app.ui.screens.CalendarFragment
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
     private val authViewModel: AuthViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private var currentRoute: String = ""
+    private var pushRegistrationRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +70,11 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     authViewModel.state.collect { state ->
+                        if (!state.signedIn) pushRegistrationRequested = false
+                        if (state.signedIn && settingsViewModel.state.value.notifications && !pushRegistrationRequested) {
+                            pushRegistrationRequested = true
+                            launch { PushRegistration.register(this@MainActivity) }
+                        }
                         if (state.signedIn && currentRoute in AUTH_ROUTES) {
                             navigate(Routes.HOME, clearBackStack = true)
                         }
@@ -75,6 +82,11 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
                 }
                 launch {
                     settingsViewModel.state.collect { state ->
+                        if (!state.notifications) pushRegistrationRequested = false
+                        if (state.notifications && authViewModel.state.value.signedIn && !pushRegistrationRequested) {
+                            pushRegistrationRequested = true
+                            launch { PushRegistration.register(this@MainActivity) }
+                        }
                         val requestedMode = if (state.darkMode) {
                             AppCompatDelegate.MODE_NIGHT_YES
                         } else {

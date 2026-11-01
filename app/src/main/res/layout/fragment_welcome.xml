@@ -19,14 +19,14 @@
         <ImageView
             android:layout_width="128dp"
             android:layout_height="128dp"
-            android:contentDescription="StudyHub logo"
+            android:contentDescription="@string/welcome_logo_description"
             android:src="@drawable/studyhub_logo" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="StudyHub"
+            android:text="@string/app_name"
             android:textColor="@color/ink"
             android:textSize="38sp"
             android:textStyle="bold" />
@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Organize. Collaborate. Achieve. Together."
+            android:text="@string/welcome_tagline"
             android:textColor="@color/ink_muted"
             android:textSize="15sp" />
 
@@ -56,7 +56,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Make study time count"
+                    android:text="@string/welcome_headline"
                     android:textColor="@color/ink"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -66,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:lineSpacingExtra="3dp"
-                    android:text="Bring your study group together. Keep tasks, sessions, deadlines and conversations in one calm, organized space."
+                    android:text="@string/welcome_description"
                     android:textColor="@color/ink_muted"
                     android:textSize="15sp" />
 
@@ -75,7 +75,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="28dp"
-                    android:text="Create your account"
+                    android:text="@string/welcome_create_account"
                     android:textAllCaps="false"
                     android:textSize="16sp"
                     app:backgroundTint="@color/lilac_primary_dark"
@@ -87,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:layout_marginTop="10dp"
-                    android:text="I already have an account"
+                    android:text="@string/welcome_login"
                     android:textAllCaps="false"
                     android:textColor="@color/ink"
                     app:cornerRadius="27dp"

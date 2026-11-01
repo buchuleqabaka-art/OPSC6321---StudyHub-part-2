@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
 import com.studyhub.app.R
+import com.studyhub.app.data.model.Priority
 import com.studyhub.app.data.model.Task
 import com.studyhub.app.databinding.FragmentTasksBinding
 import com.studyhub.app.databinding.ItemTaskBinding
 import com.studyhub.app.ui.components.DialogHelper
+import com.studyhub.app.util.DateUtils
 
 class TasksFragment : HubFragment(R.layout.fragment_tasks) {
     private var allTasks: List<Task> = emptyList()
@@ -23,7 +25,7 @@ class TasksFragment : HubFragment(R.layout.fragment_tasks) {
         binding.buttonNewTask.setOnClickListener {
             DialogHelper.createTask(requireContext()) { task ->
                 mainViewModel.addTask(task)
-                Snackbar.make(binding.root, "Task added", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.task_added, Snackbar.LENGTH_SHORT).show()
             }
         }
         observe(mainViewModel.state) { state ->
@@ -43,15 +45,36 @@ class TasksFragment : HubFragment(R.layout.fragment_tasks) {
         visible.forEach { task ->
             val row = ItemTaskBinding.inflate(layoutInflater, binding.tasksContainer, false)
             row.taskTitle.text = task.title
-            row.taskDue.text = "Due ${com.studyhub.app.util.DateUtils.formatDate(task.dueDate)}"
-            row.taskMeta.text = "${task.assignedToName.ifBlank { "You" }} · ${task.priorityEnum.name.lowercase().replaceFirstChar { it.uppercase() }} priority"
+            row.taskDue.text = getString(
+                R.string.task_due_format,
+                DateUtils.formatDate(requireContext(), task.dueDate)
+            )
+            val priorityLabel = when (task.priorityEnum) {
+                Priority.HIGH -> getString(R.string.priority_high)
+                Priority.MEDIUM -> getString(R.string.priority_medium)
+                Priority.LOW -> getString(R.string.priority_low)
+            }
+            row.taskMeta.text = getString(
+                R.string.task_priority_format,
+                task.assignedToName.ifBlank { getString(R.string.you) },
+                priorityLabel
+            )
             row.taskCompleted.isChecked = task.completed
-            row.taskCompleted.setOnCheckedChangeListener { _, _ ->
+            row.taskCompleted.contentDescription = getString(
+                if (task.completed) R.string.mark_task_incomplete_format else R.string.mark_task_complete_format,
+                task.title
+            )
+            row.taskCompleted.setOnCheckedChangeListener { _, isChecked ->
+                row.taskCompleted.contentDescription = getString(
+                    if (isChecked) R.string.mark_task_incomplete_format else R.string.mark_task_complete_format,
+                    task.title
+                )
                 mainViewModel.toggleTask(task)
             }
+            row.taskDelete.contentDescription = getString(R.string.delete_task)
             row.taskDelete.setOnClickListener {
                 mainViewModel.deleteTask(task.id)
-                Snackbar.make(binding.root, "Task deleted", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.task_deleted, Snackbar.LENGTH_SHORT).show()
             }
             binding.tasksContainer.addView(row.root)
         }

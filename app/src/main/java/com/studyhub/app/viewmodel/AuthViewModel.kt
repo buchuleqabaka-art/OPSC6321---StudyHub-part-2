@@ -3,6 +3,7 @@ package com.studyhub.app.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.studyhub.app.R
 import com.studyhub.app.data.model.UserProfile
 import com.studyhub.app.data.repository.AuthException
 import com.studyhub.app.data.repository.AuthRepository
@@ -22,12 +23,12 @@ data class AuthUiState(
     val dateOfBirth: String = "",
     val passwordVisible: Boolean = false,
     val loading: Boolean = false,
-    val nameError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val dobError: String? = null,
-    val generalError: String? = null,
-    val infoMessage: String? = null,
+    val nameError: Int? = null,
+    val emailError: Int? = null,
+    val passwordError: Int? = null,
+    val dobError: Int? = null,
+    val generalError: Int? = null,
+    val infoMessage: Int? = null,
     val signedIn: Boolean = false,
     val profile: UserProfile? = null
 ) {
@@ -40,8 +41,6 @@ class AuthViewModel(
 
     private val _state = MutableStateFlow(AuthUiState(signedIn = repo.isLoggedIn()))
     val state: StateFlow<AuthUiState> = _state.asStateFlow()
-
-    // --- Field updates. Editing a field clears the error shown against it. ---
 
     fun onNameChange(value: String) = _state.update {
         it.copy(name = value, nameError = null, generalError = null)
@@ -72,61 +71,58 @@ class AuthViewModel(
         )
     }
 
-    // --- Register -----------------------------------------------------------
-
     fun register() {
         val s = _state.value
         var valid = true
 
         if (!Validators.isValidName(s.name)) {
-            _state.update { it.copy(nameError = "Enter your full name (at least 2 characters).") }
+            _state.update { it.copy(nameError = R.string.error_name_invalid) }
             valid = false
         }
         if (!Validators.isValidEmail(s.email)) {
-            _state.update { it.copy(emailError = "Enter a valid email address.") }
+            _state.update { it.copy(emailError = R.string.error_email_invalid) }
             valid = false
         }
         if (!Validators.isValidPassword(s.password)) {
-            _state.update { it.copy(passwordError = "Use at least 8 characters with a number.") }
+            _state.update { it.copy(passwordError = R.string.error_password_invalid) }
             valid = false
         }
         if (s.dateOfBirth.isBlank()) {
-            _state.update { it.copy(dobError = "Select your date of birth.") }
+            _state.update { it.copy(dobError = R.string.error_dob_required) }
             valid = false
         } else if (!Validators.isValidDateOfBirth(s.dateOfBirth)) {
-            _state.update { it.copy(dobError = "You must be at least 13 years old.") }
+            _state.update { it.copy(dobError = R.string.error_minimum_age) }
             valid = false
         }
-        
         if (!valid) return
 
         viewModelScope.launch {
             _state.update { it.copy(loading = true, generalError = null) }
             repo.register(s.name, s.email, s.password, s.dateOfBirth)
                 .onSuccess { profile ->
-                    _state.update { it.copy(
-                        loading = false,
-                        signedIn = true,
-                        profile = profile,
-                        infoMessage = "Account created successfully!"
-                    ) }
+                    _state.update {
+                        it.copy(
+                            loading = false,
+                            signedIn = true,
+                            profile = profile,
+                            infoMessage = R.string.auth_account_created
+                        )
+                    }
                 }
                 .onFailure { e -> applyError(e) }
         }
     }
-
-    // --- Login --------------------------------------------------------------
 
     fun login() {
         val s = _state.value
         var valid = true
 
         if (!Validators.isValidEmail(s.email)) {
-            _state.update { it.copy(emailError = "Enter a valid email address, e.g. name@example.com") }
+            _state.update { it.copy(emailError = R.string.error_login_email_format) }
             valid = false
         }
         if (s.password.isBlank()) {
-            _state.update { it.copy(passwordError = "Enter your password.") }
+            _state.update { it.copy(passwordError = R.string.error_password_required) }
             valid = false
         }
         if (!valid) return
@@ -135,12 +131,14 @@ class AuthViewModel(
             _state.update { it.copy(loading = true) }
             repo.login(s.email, s.password)
                 .onSuccess { profile ->
-                    _state.update { it.copy(
-                        loading = false,
-                        signedIn = true,
-                        profile = profile,
-                        infoMessage = "Login successful!"
-                    ) }
+                    _state.update {
+                        it.copy(
+                            loading = false,
+                            signedIn = true,
+                            profile = profile,
+                            infoMessage = R.string.auth_login_success
+                        )
+                    }
                 }
                 .onFailure { e -> applyError(e) }
         }
@@ -152,36 +150,31 @@ class AuthViewModel(
         if (!Validators.isValidEmail(email)) return
         viewModelScope.launch {
             if (!repo.emailExists(email)) {
-                _state.update {
-                    it.copy(emailError = "This email is not registered. Check the address or create an account.")
-                }
+                _state.update { it.copy(emailError = R.string.error_email_unregistered) }
             }
         }
     }
-
-    // --- Social sign-in -----------------------------------------------------
 
     fun signInWithGoogle(context: Context) = viewModelScope.launch {
         _state.update { it.copy(loading = true, generalError = null) }
         repo.signInWithGoogle(context)
             .onSuccess { profile ->
-                _state.update { it.copy(
-                    loading = false,
-                    signedIn = true,
-                    profile = profile,
-                    infoMessage = "Login successful!"
-                ) }
+                _state.update {
+                    it.copy(
+                        loading = false,
+                        signedIn = true,
+                        profile = profile,
+                        infoMessage = R.string.auth_login_success
+                    )
+                }
             }
             .onFailure { e -> applyError(e) }
     }
 
-
-    // --- Password reset -----------------------------------------------------
-
     fun sendPasswordReset() {
         val email = _state.value.email
         if (!Validators.isValidEmail(email)) {
-            _state.update { it.copy(emailError = "Enter your email address first.") }
+            _state.update { it.copy(emailError = R.string.error_email_required_first) }
             return
         }
         viewModelScope.launch {
@@ -189,7 +182,7 @@ class AuthViewModel(
             repo.sendPasswordReset(email)
                 .onSuccess {
                     _state.update {
-                        it.copy(loading = false, infoMessage = "Reset link sent. Check your inbox.")
+                        it.copy(loading = false, infoMessage = R.string.auth_reset_sent)
                     }
                 }
                 .onFailure { e -> applyError(e) }
@@ -201,17 +194,17 @@ class AuthViewModel(
         _state.value = AuthUiState()
     }
 
-    /** Routes a repository failure onto the field it belongs to. */
+    /** Keeps a resource id in state so errors are rendered in the current app language. */
     private fun applyError(e: Throwable) {
         val error = (e as? AuthException)?.error
-            ?: AuthError(AuthField.GENERAL, e.localizedMessage ?: "Something went wrong.")
+            ?: AuthError(AuthField.GENERAL, R.string.error_generic)
         _state.update {
             when (error.field) {
-                AuthField.EMAIL -> it.copy(loading = false, emailError = error.message)
-                AuthField.PASSWORD -> it.copy(loading = false, passwordError = error.message)
-                AuthField.NAME -> it.copy(loading = false, nameError = error.message)
-                AuthField.DATE_OF_BIRTH -> it.copy(loading = false, dobError = error.message)
-                AuthField.GENERAL -> it.copy(loading = false, generalError = error.message)
+                AuthField.EMAIL -> it.copy(loading = false, emailError = error.messageResId)
+                AuthField.PASSWORD -> it.copy(loading = false, passwordError = error.messageResId)
+                AuthField.NAME -> it.copy(loading = false, nameError = error.messageResId)
+                AuthField.DATE_OF_BIRTH -> it.copy(loading = false, dobError = error.messageResId)
+                AuthField.GENERAL -> it.copy(loading = false, generalError = error.messageResId)
             }
         }
     }

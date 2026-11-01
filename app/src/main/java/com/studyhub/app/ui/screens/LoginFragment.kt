@@ -41,14 +41,14 @@ class LoginFragment : HubFragment(R.layout.fragment_login) {
         }
 
         observe(authViewModel.state) { state ->
-            binding.emailLayout.error = state.emailError
-            binding.passwordLayout.error = state.passwordError
+            binding.emailLayout.error = state.emailError?.let(::getString)
+            binding.passwordLayout.error = state.passwordError?.let(::getString)
             binding.loginProgress.visibility = if (state.loading) View.VISIBLE else View.GONE
             binding.buttonLogin.isEnabled = !state.loading
             binding.buttonGoogle.isEnabled = !state.loading
-            binding.textGeneralError.visibility = if (state.generalError.isNullOrBlank()) View.GONE else View.VISIBLE
-            binding.textGeneralError.text = state.generalError.orEmpty()
-            val message = state.infoMessage ?: state.generalError
+            binding.textGeneralError.visibility = if (state.generalError == null) View.GONE else View.VISIBLE
+            binding.textGeneralError.text = state.generalError?.let(::getString).orEmpty()
+            val message = (state.infoMessage ?: state.generalError)?.let(::getString)
             if (!message.isNullOrBlank() && message != lastMessage) {
                 lastMessage = message
                 Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()

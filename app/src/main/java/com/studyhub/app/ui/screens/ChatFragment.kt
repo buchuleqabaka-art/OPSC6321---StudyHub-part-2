@@ -22,7 +22,7 @@ class ChatFragment : HubFragment(R.layout.fragment_chat) {
             val message = binding.messageInput.text?.toString().orEmpty()
             if (message.isBlank()) return@setOnClickListener
             if (currentState.activeGroupId.isNullOrBlank()) {
-                Snackbar.make(binding.root, "Choose a study group first", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.choose_group_first, Snackbar.LENGTH_SHORT).show()
                 navigator.navigate(Routes.GROUPS, clearBackStack = true)
                 return@setOnClickListener
             }
@@ -32,7 +32,7 @@ class ChatFragment : HubFragment(R.layout.fragment_chat) {
         observe(mainViewModel.state) { state ->
             currentState = state
             val group = state.groups.firstOrNull { it.id == state.activeGroupId }
-            binding.textChatTitle.text = group?.name?.takeIf { it.isNotBlank() } ?: "Group chat"
+            binding.textChatTitle.text = group?.name?.takeIf { it.isNotBlank() } ?: getString(R.string.group_chat)
             renderMessages(binding, state.messages)
         }
     }
@@ -41,9 +41,9 @@ class ChatFragment : HubFragment(R.layout.fragment_chat) {
         binding.chatMessages.removeAllViews()
         messages.forEach { message ->
             val row = ItemChatMessageBinding.inflate(layoutInflater, binding.chatMessages, false)
-            row.messageSender.text = message.senderName.ifBlank { "StudyHub member" }
+            row.messageSender.text = message.senderName.ifBlank { getString(R.string.studyhub_member) }
             row.messageBody.text = message.text
-            row.messageTime.text = DateUtils.formatTime(message.sentAt)
+            row.messageTime.text = DateUtils.formatTime(requireContext(), message.sentAt)
             binding.chatMessages.addView(row.root)
         }
         binding.chatScroll.post { binding.chatScroll.fullScroll(View.FOCUS_DOWN) }

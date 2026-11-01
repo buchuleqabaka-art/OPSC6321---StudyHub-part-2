@@ -9,27 +9,27 @@
     android:paddingTop="20dp"
     android:paddingEnd="20dp">
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Study sessions" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Make time to learn together." android:textColor="@color/ink_muted" android:textSize="14sp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/study_sessions" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/sessions_subtitle" android:textColor="@color/ink_muted" android:textSize="14sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_schedule_session"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_marginTop="16dp"
-        android:text="+  Schedule a study session"
+        android:text="@string/schedule_session_button"
         android:textAllCaps="false"
         app:backgroundTint="@color/lilac_primary_dark"
         app:cornerRadius="24dp" />
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Upcoming" android:textColor="@color/ink" android:textSize="19sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="@string/upcoming" android:textColor="@color/ink" android:textSize="19sp" android:textStyle="bold" />
     <TextView
         android:id="@+id/text_empty_sessions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:text="No upcoming sessions yet."
+        android:text="@string/empty_upcoming_sessions_list"
         android:textColor="@color/ink_muted"
         android:visibility="gone" />
 

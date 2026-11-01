@@ -1,6 +1,7 @@
 package com.studyhub.app.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
@@ -135,6 +136,20 @@ fun ChatMessageEntity.toModel() = ChatMessage(
 fun ChatMessage.toEntity(uid: String) = ChatMessageEntity(
     id = id, localUserId = uid, groupId = groupId, senderId = senderId, senderName = senderName,
     text = text, sentAt = sentAt
+)
+
+@Entity(
+    tableName = "pending_task_operations",
+    indices = [Index(value = ["localUserId", "createdAt"]), Index(value = ["taskId"])]
+)
+data class PendingTaskOperationEntity(
+    @PrimaryKey val operationId: String,
+    val localUserId: String,
+    val taskId: String,
+    /** UPSERT or DELETE. The latest local state is replayed to Firestore. */
+    val operation: String,
+    val payload: String,
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 class Converters {

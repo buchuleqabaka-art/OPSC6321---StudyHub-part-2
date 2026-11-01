@@ -5,6 +5,14 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val studyHubApiBaseUrl = providers.gradleProperty("studyhubApiBaseUrl")
+    .orElse("https://example.com/")
+    .get()
+    .let { if (it.endsWith("/")) it else "$it/" }
+val studyHubGoogleWebClientId = providers.gradleProperty("studyhubGoogleWebClientId")
+    .orElse("773626447994-v7773uuv6dbns00302j3gun4fvpc4n2g.apps.googleusercontent.com")
+    .get()
+
 android {
     namespace = "com.studyhub.app"
     compileSdk = 34
@@ -13,12 +21,12 @@ android {
         applicationId = "com.studyhub.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "API_BASE_URL", "\"https://example.com/\"")
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"773626447994-v7773uuv6dbns00302j3gun4fvpc4n2g.apps.googleusercontent.com\"")
+        buildConfigField("String", "API_BASE_URL", "\"$studyHubApiBaseUrl\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$studyHubGoogleWebClientId\"")
     }
 
     buildTypes {
@@ -72,6 +80,9 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.glide)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)

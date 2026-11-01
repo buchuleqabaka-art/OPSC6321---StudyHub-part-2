@@ -20,7 +20,10 @@ class GroupsFragment : HubFragment(R.layout.fragment_groups) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentGroupsBinding.bind(view)
-        binding.searchInput.doAfterTextChanged { query = it?.toString().orEmpty(); renderGroups(binding) }
+        binding.searchInput.doAfterTextChanged {
+            query = it?.toString().orEmpty()
+            renderGroups(binding)
+        }
         binding.groupFilter.setOnCheckedChangeListener { _, checkedId ->
             groupFilter = checkedId
             renderGroups(binding)
@@ -28,7 +31,7 @@ class GroupsFragment : HubFragment(R.layout.fragment_groups) {
         binding.buttonCreateGroup.setOnClickListener {
             DialogHelper.createGroup(requireContext()) { name, subject, description ->
                 mainViewModel.createGroup(name, subject, description)
-                Snackbar.make(binding.root, "Study group created", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.group_created, Snackbar.LENGTH_SHORT).show()
             }
         }
         observe(mainViewModel.state) { state ->
@@ -53,17 +56,20 @@ class GroupsFragment : HubFragment(R.layout.fragment_groups) {
             }
         binding.groupsContainer.removeAllViews()
         binding.textEmptyGroups.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-        binding.textEmptyGroups.text = if (currentGroups.isEmpty()) {
-            "No groups yet. Create one to get started."
-        } else {
-            "No groups match your search."
-        }
+        binding.textEmptyGroups.setText(
+            if (currentGroups.isEmpty()) R.string.empty_groups_start else R.string.empty_groups_search
+        )
         filtered.forEach { group ->
             val row = ItemGroupBinding.inflate(layoutInflater, binding.groupsContainer, false)
             row.groupName.text = group.name
-            row.groupSubject.text = group.subject.ifBlank { "Study group" }
-            row.groupDescription.text = group.description.ifBlank { "Tap to open your group chat." }
-            row.groupMembers.text = "${group.memberCount} ${if (group.memberCount == 1) "member" else "members"} · Tap to open chat"
+            row.groupSubject.text = group.subject.ifBlank { getString(R.string.generic_study_group) }
+            row.groupDescription.text = group.description.ifBlank { getString(R.string.group_open_chat_hint) }
+            val memberCount = resources.getQuantityString(
+                R.plurals.group_member_count,
+                group.memberCount,
+                group.memberCount
+            )
+            row.groupMembers.text = getString(R.string.group_members_format, memberCount, getString(R.string.group_member_hint))
             row.root.setOnClickListener {
                 mainViewModel.openGroupChat(group.id)
                 navigator.navigate(Routes.CHATS)

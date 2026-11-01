@@ -9,8 +9,8 @@
     android:paddingTop="20dp"
     android:paddingEnd="20dp">
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="My tasks" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="A clear next step makes a big assignment easier." android:textColor="@color/ink_muted" android:textSize="14sp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/my_tasks" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/tasks_subtitle" android:textColor="@color/ink_muted" android:textSize="14sp" />
 
     <RadioGroup
         android:id="@+id/task_filter"
@@ -18,16 +18,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:orientation="horizontal">
-        <RadioButton android:id="@+id/filter_all" android:layout_width="wrap_content" android:layout_height="48dp" android:checked="true" android:text="All" android:textColor="@color/ink" />
-        <RadioButton android:id="@+id/filter_pending" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Pending" android:textColor="@color/ink" />
-        <RadioButton android:id="@+id/filter_completed" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Completed" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/filter_all" android:layout_width="wrap_content" android:layout_height="48dp" android:checked="true" android:text="@string/filter_all" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/filter_pending" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/pending" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/filter_completed" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/completed" android:textColor="@color/ink" />
     </RadioGroup>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_new_task"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="+  Add a task"
+        android:text="@string/add_task_button"
         android:textAllCaps="false"
         app:backgroundTint="@color/lilac_primary_dark"
         app:cornerRadius="24dp" />
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="26dp"
         android:gravity="center"
-        android:text="No tasks in this view."
+        android:text="@string/empty_tasks"
         android:textColor="@color/ink_muted"
         android:visibility="gone" />
 

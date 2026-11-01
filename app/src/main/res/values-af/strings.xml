@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StudyHub</string>
+
+    <!-- Navigasie en algemene aksies -->
+    <string name="nav_home">Tuis</string>
+    <string name="nav_groups">Groepe</string>
+    <string name="nav_tasks">Take</string>
+    <string name="nav_sessions">Sessies</string>
+    <string name="nav_profile">Profiel</string>
+    <string name="back">‹  Terug</string>
+    <string name="cancel">Kanselleer</string>
+    <string name="create">Skep</string>
+    <string name="save">Stoor</string>
+    <string name="close">Sluit</string>
+    <string name="see_all">Sien alles</string>
+    <string name="you">Jy</string>
+    <string name="student">Student</string>
+
+    <!-- Welkom en aanmelding -->
+    <string name="welcome_logo_description">StudyHub-logo</string>
+    <string name="welcome_tagline">Organiseer. Werk saam. Bereik. Saam.</string>
+    <string name="welcome_headline">Maak studietyd die moeite werd</string>
+    <string name="welcome_description">Bring jou studiegroep bymekaar. Hou take, sessies, sperdatums en gesprekke op een rustige, georganiseerde plek.</string>
+    <string name="welcome_create_account">Skep jou rekening</string>
+    <string name="welcome_login">Ek het reeds ’n rekening</string>
+    <string name="login_title">Welkom terug</string>
+    <string name="login_subtitle">Meld aan en gaan voort waar jou groep opgehou het.</string>
+    <string name="register_title">Skep jou rekening</string>
+    <string name="register_subtitle">’n Beter manier om saam te studeer begin hier.</string>
+    <string name="full_name">Volle naam</string>
+    <string name="email_address">E-posadres</string>
+    <string name="password">Wagwoord</string>
+    <string name="forgot_password">Wagwoord vergeet?</string>
+    <string name="log_in">Meld aan</string>
+    <string name="create_account">Skep rekening</string>
+    <string name="or_continue_with">of gaan voort met</string>
+    <string name="continue_with_google">Gaan voort met Google</string>
+    <string name="new_to_studyhub">Nuut by StudyHub?</string>
+    <string name="already_registered_login">Reeds geregistreer?  Meld aan</string>
+    <string name="password_strength">Wagwoordsterkte</string>
+    <string name="date_of_birth_select">Geboortedatum  ·  Kies datum</string>
+    <string name="date_of_birth_format">Geboortedatum  ·  %1$s</string>
+
+    <!-- Tuisblad -->
+    <string name="home_greeting">Goeiedag, %1$s</string>
+    <string name="home_greeting_default">Goeiedag, Student</string>
+    <string name="home_subtitle">Jou studieruimte is gereed. Waaraan werk ons?</string>
+    <string name="thought_for_today">’n Gedagte vir vandag</string>
+    <string name="quote_fallback">Klein, volgehoue pogings is beter as een lang nag voor die sperdatum.</string>
+    <string name="quote_author_format">— %1$s</string>
+    <string name="quote_author_default">— StudyHub</string>
+    <string name="home_groups_count_label">Groepe</string>
+    <string name="home_todo_count_label">Om te doen</string>
+    <string name="home_sessions_count_label">Sessies</string>
+    <string name="your_study_space">Jou studieruimte</string>
+    <string name="calendar">Kalender</string>
+    <string name="chat">Klets</string>
+    <string name="upcoming_tasks">Komende take</string>
+    <string name="next_study_session">Volgende studiesessie</string>
+    <string name="empty_upcoming_sessions">Geen sessies is nog beplan nie.</string>
+    <string name="empty_tasks_caught_up">Jy is op datum. Voeg ’n taak by wanneer jy gereed is.</string>
+    <string name="location_tbc">Ligging moet nog bevestig word</string>
+    <string name="location_tbc_short">Ligging nog onseker</string>
+
+    <!-- Studiegroepe -->
+    <string name="my_study_groups">My studiegroepe</string>
+    <string name="groups_subtitle">Hou jou vakke en spanmaats bymekaar.</string>
+    <string name="search_groups">Soek jou groepe</string>
+    <string name="filter_all">Alles</string>
+    <string name="filter_owned">Eie groepe</string>
+    <string name="filter_joined">Aangesluit</string>
+    <string name="create_study_group_button">+  Skep ’n studiegroep</string>
+    <string name="empty_groups_start">Nog geen groepe nie. Skep een om te begin.</string>
+    <string name="empty_groups_search">Geen groepe pas by jou soektog nie.</string>
+    <string name="generic_study_group">Studiegroep</string>
+    <string name="group_open_chat_hint">Tik om die groepklets oop te maak.</string>
+    <string name="group_member_hint">Tik om die klets oop te maak</string>
+    <plurals name="group_member_count">
+        <item quantity="one">%1$d lid</item>
+        <item quantity="other">%1$d lede</item>
+    </plurals>
+    <string name="group_members_format">%1$s · %2$s</string>
+    <string name="group_created">Studiegroep geskep</string>
+    <string name="group_dialog_title">Skep ’n studiegroep</string>
+    <string name="group_name">Groepnaam</string>
+    <string name="subject">Vak</string>
+    <string name="description">Beskrywing</string>
+    <string name="error_group_name">Voer ’n groepnaam in</string>
+
+    <!-- Take -->
+    <string name="my_tasks">My take</string>
+    <string name="tasks_subtitle">’n Duidelike volgende stap maak ’n groot opdrag makliker.</string>
+    <string name="pending">Hangend</string>
+    <string name="completed">Voltooi</string>
+    <string name="add_task_button">+  Voeg ’n taak by</string>
+    <string name="empty_tasks">Geen take in hierdie aansig nie.</string>
+    <string name="task_title">Taaktitel</string>
+    <string name="assigned_to">Toegewys aan</string>
+    <string name="priority">Prioriteit</string>
+    <string name="priority_high">Hoog</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_low">Laag</string>
+    <string name="task_due_tomorrow">Verval môre</string>
+    <string name="task_due_format">Verval %1$s</string>
+    <string name="task_preview_format">%1$s · %2$s</string>
+    <string name="session_preview_format">%1$s · %2$s · %3$s</string>
+    <string name="task_priority_format">%1$s · %2$s prioriteit</string>
+    <string name="task_added">Taak bygevoeg</string>
+    <string name="task_deleted">Taak verwyder</string>
+    <string name="task_dialog_title">Voeg ’n taak by</string>
+    <string name="add_task">Voeg taak by</string>
+    <string name="error_task_title">Voer ’n taaktitel in</string>
+    <string name="delete_task">Verwyder taak</string>
+    <string name="mark_task_complete_format">Merk %1$s as voltooi</string>
+    <string name="mark_task_incomplete_format">Merk %1$s as onvoltooi</string>
+
+    <!-- Studiesessies en kalender -->
+    <string name="study_sessions">Studiesessies</string>
+    <string name="sessions_subtitle">Maak tyd om saam te leer.</string>
+    <string name="schedule_session_button">+  Beplan ’n studiesessie</string>
+    <string name="upcoming">Komende</string>
+    <string name="empty_upcoming_sessions_list">Geen komende sessies nie.</string>
+    <string name="session_title">Sessietitel</string>
+    <string name="session_cover_hint">Wat gaan julle behandel?</string>
+    <string name="location">Ligging</string>
+    <string name="session_date_default">Môre · 14:00</string>
+    <string name="session_date_time_format">%1$s · %2$s</string>
+    <string name="schedule_session_title">Beplan ’n sessie</string>
+    <string name="schedule">Beplan</string>
+    <string name="session_scheduled">Sessie beplan</string>
+    <string name="error_session_title">Voer ’n sessietitel in</string>
+    <string name="study_with_group">Studeer saam met jou groep</string>
+    <string name="session_location_attendance_format">%1$s · %2$s</string>
+    <plurals name="session_going_count"><item quantity="one">%1$d persoon gaan</item><item quantity="other">%1$d mense gaan</item></plurals>
+    <string name="attending">Ek gaan ✓</string>
+    <string name="not_attending">Ek gaan</string>
+    <string name="study_calendar">Studiekalender</string>
+    <string name="agenda">Agenda</string>
+    <string name="agenda_title_format">Agenda · %1$s</string>
+    <string name="empty_agenda">Niks is vir hierdie dag beplan nie.</string>
+    <string name="agenda_task_details">Taak · Verval %1$s</string>
+    <string name="agenda_session_details">Sessie · %1$s · %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+
+    <!-- Klets -->
+    <string name="group_chat">Groepklets</string>
+    <string name="write_message">Skryf ’n boodskap</string>
+    <string name="send_message">Stuur boodskap</string>
+    <string name="choose_group_first">Kies eers ’n studiegroep</string>
+    <string name="studyhub_member">StudyHub-lid</string>
+
+    <!-- Profiel en instellings -->
+    <string name="your_profile">Jou profiel</string>
+    <string name="profile_email_placeholder">student@example.com</string>
+    <string name="default_course">Inligtingstegnologie</string>
+    <string name="default_year">3de jaar</string>
+    <string name="profile_course_year_format">%1$s · %2$s</string>
+    <string name="profile_default_course_year">Inligtingstegnologie · 3de jaar</string>
+    <string name="profile_stats_format">%1$d punte · %2$s · %3$s</string>
+    <string name="profile_stats_zero">0 punte · 0 take voltooi</string>
+    <string name="points_format">%1$d punte</string>
+    <plurals name="tasks_completed_count">
+        <item quantity="one">%1$d taak voltooi</item>
+        <item quantity="other">%1$d take voltooi</item>
+    </plurals>
+    <plurals name="groups_count">
+        <item quantity="one">%1$d groep</item>
+        <item quantity="other">%1$d groepe</item>
+    </plurals>
+    <string name="edit_profile">Wysig profiel</string>
+    <string name="profile_photo">Profielfoto</string>
+    <string name="upload_profile_photo">Laai profielfoto op</string>
+    <string name="profile_photo_upload_success">Profielfoto opgelaai</string>
+    <string name="profile_photo_upload_failed">Kon nie die foto oplaai nie. Kies ’n ander beeld of probeer weer.</string>
+    <string name="preferences">Voorkeure</string>
+    <string name="dark_mode">Donker modus</string>
+    <string name="offline_sync">Sinkroniseer veranderinge aanlyn</string>
+    <string name="data_saver">Databesparing</string>
+    <string name="notifications">Kennisgewings</string>
+    <string name="language">Taal</string>
+    <string name="language_format">Taal · %1$s</string>
+    <string name="language_default">Taal · Engels</string>
+    <string name="choose_language">Kies taal</string>
+    <string name="language_english">Engels</string>
+    <string name="language_afrikaans">Afrikaans</string>
+    <string name="language_isizulu">isiZulu</string>
+    <string name="sign_out">Meld af</string>
+    <string name="sign_out_confirm">Meld af?</string>
+    <string name="sign_out_message">Jy kan enige tyd weer aanmeld.</string>
+    <string name="edit_profile_title">Wysig profiel</string>
+    <string name="course">Kursus</string>
+    <string name="error_name_required">Naam is verpligtend</string>
+    <string name="error_email_required">E-posadres is verpligtend</string>
+
+    <!-- Datums en aanmeldterugvoer -->
+    <string name="due_overdue">Agterstallig</string>
+    <plurals name="due_in_days">
+        <item quantity="one">Verval oor %1$d dag</item>
+        <item quantity="other">Verval oor %1$d dae</item>
+    </plurals>
+    <string name="due_tomorrow">Verval môre</string>
+    <plurals name="due_in_hours">
+        <item quantity="one">Verval oor %1$d uur</item>
+        <item quantity="other">Verval oor %1$d ure</item>
+    </plurals>
+    <string name="due_today">Verval vandag</string>
+    <string name="error_name_invalid">Voer jou volle naam in (minstens 2 karakters).</string>
+    <string name="error_email_invalid">Voer ’n geldige e-posadres in.</string>
+    <string name="error_password_invalid">Gebruik minstens 8 karakters en ’n syfer.</string>
+    <string name="error_dob_required">Kies jou geboortedatum.</string>
+    <string name="error_minimum_age">Jy moet minstens 13 jaar oud wees.</string>
+    <string name="auth_account_created">Rekening suksesvol geskep!</string>
+    <string name="auth_login_success">Suksesvol aangemeld!</string>
+    <string name="error_login_email_format">Voer ’n geldige e-posadres in, byvoorbeeld name@example.com</string>
+    <string name="error_password_required">Voer jou wagwoord in.</string>
+    <string name="error_email_unregistered">Hierdie e-posadres is nie geregistreer nie. Kontroleer dit of skep ’n rekening.</string>
+    <string name="error_email_required_first">Voer eers jou e-posadres in.</string>
+    <string name="auth_reset_sent">Terugstelskakel gestuur. Kontroleer jou inkassie.</string>
+    <string name="error_email_exists">Hierdie e-posadres is reeds geregistreer. Meld eerder aan.</string>
+    <string name="error_password_weak">Wagwoord is te swak. Gebruik minstens 8 karakters en ’n syfer.</string>
+    <string name="error_email_not_valid">Hierdie e-posadres is ongeldig.</string>
+    <string name="error_incorrect_password">Verkeerde wagwoord. Probeer weer of stel dit terug.</string>
+    <string name="error_not_registered">Hierdie e-posadres is nie geregistreer nie.</string>
+    <string name="error_google_credential">Onverwagte Google-aanmeldbewys.</string>
+    <string name="error_google_cancelled">Aanmelding is gekanselleer.</string>
+    <string name="error_google_configuration">Google-aanmelding is nie ingestel nie. Kontroleer die SHA-1-vingerafdruk en Web Client ID in Firebase.</string>
+    <string name="error_network">Geen internetverbinding nie. Kontroleer jou netwerk en probeer weer.</string>
+    <string name="error_firestore_permission">Firestore-toegang is geweier. Kontroleer die Firebase-sekuriteitsreëls.</string>
+    <string name="error_generic">Iets het verkeerd geloop. Probeer asseblief weer.</string>
+
+    <!-- Vanlyn taakberging en sinkronisering -->
+    <string name="sync_status_title">Take gereed vir vanlyn gebruik</string>
+    <string name="sync_status_saved">Take word op hierdie toestel gestoor en sinkroniseer wanneer jy weer aanlyn is.</string>
+    <string name="sync_status_up_to_date">Alle veranderinge is gesinkroniseer.</string>
+    <plurals name="sync_changes_waiting">
+        <item quantity="one">%1$d verandering wag om te sinkroniseer</item>
+        <item quantity="other">%1$d veranderinge wag om te sinkroniseer</item>
+    </plurals>
+    <string name="sync_offline_notice">Op hierdie toestel gestoor. Dit sinkroniseer wanneer jy aanlyn is.</string>
+
+    <!-- Kennisgewings -->
+    <string name="notification_channel_name">StudyHub-opdaterings</string>
+    <string name="notification_channel_description">Groepboodskappe en belangrike studieherinneringe.</string>
+    <string name="notification_default_title">StudyHub-opdatering</string>
+    <string name="notification_default_body">Jy het ’n nuwe studie-opdatering.</string>
+    <string name="notification_new_message_title">Nuwe groepboodskap</string>
+    <string name="notification_new_message_body">%1$s het ’n boodskap gestuur: %2$s</string>
+    <string name="notification_permission_denied">Kennisgewings is in jou toestelinstellings afgeskakel.</string>
+    <string name="notification_task_reminder_title">Taakherinnering</string>
+    <string name="notification_task_reminder_body">“%1$s” moet binnekort ingedien word.</string>
+</resources>

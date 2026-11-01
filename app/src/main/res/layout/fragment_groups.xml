@@ -9,8 +9,8 @@
     android:paddingTop="20dp"
     android:paddingEnd="20dp">
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="My study groups" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Keep your subjects and teammates together." android:textColor="@color/ink_muted" android:textSize="14sp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/my_study_groups" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/groups_subtitle" android:textColor="@color/ink_muted" android:textSize="14sp" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/search_layout"
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:hint="Search your groups"
+        android:hint="@string/search_groups"
         app:boxCornerRadiusBottomEnd="18dp"
         app:boxCornerRadiusBottomStart="18dp"
         app:boxCornerRadiusTopEnd="18dp"
@@ -38,9 +38,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:orientation="horizontal">
-        <RadioButton android:id="@+id/group_filter_all" android:layout_width="wrap_content" android:layout_height="48dp" android:checked="true" android:text="All" android:textColor="@color/ink" />
-        <RadioButton android:id="@+id/group_filter_owned" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Owned" android:textColor="@color/ink" />
-        <RadioButton android:id="@+id/group_filter_joined" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Joined" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/group_filter_all" android:layout_width="wrap_content" android:layout_height="48dp" android:checked="true" android:text="@string/filter_all" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/group_filter_owned" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/filter_owned" android:textColor="@color/ink" />
+        <RadioButton android:id="@+id/group_filter_joined" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/filter_joined" android:textColor="@color/ink" />
     </RadioGroup>
 
     <com.google.android.material.button.MaterialButton
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_marginTop="10dp"
-        android:text="+  Create a study group"
+        android:text="@string/create_study_group_button"
         android:textAllCaps="false"
         app:backgroundTint="@color/lilac_primary_dark"
         app:cornerRadius="24dp" />
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:gravity="center"
-        android:text="No groups yet. Create one to get started."
+        android:text="@string/empty_groups_start"
         android:textColor="@color/ink_muted"
         android:visibility="gone" />
 

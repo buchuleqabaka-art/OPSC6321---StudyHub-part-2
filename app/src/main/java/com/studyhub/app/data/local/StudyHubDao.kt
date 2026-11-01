@@ -1,6 +1,11 @@
 package com.studyhub.app.data.local
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import com.studyhub.app.data.local.PendingTaskOperationEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,11 +32,44 @@ interface StudyHubDao {
     @Query("SELECT * FROM tasks WHERE localUserId = :uid ORDER BY dueDate ASC")
     fun observeAllTasks(uid: String): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks WHERE id = :taskId AND localUserId = :uid LIMIT 1")
+    suspend fun getTask(taskId: String, uid: String): TaskEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTasks(tasks: List<TaskEntity>)
 
-    @Query("DELETE FROM tasks WHERE id = :taskId")
-    suspend fun deleteTask(taskId: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTask(task: TaskEntity)
+
+    @Query("DELETE FROM tasks WHERE id = :taskId AND localUserId = :uid")
+    suspend fun deleteTask(taskId: String, uid: String)
+
+    @Query("SELECT COUNT(*) FROM pending_task_operations WHERE localUserId = :uid")
+    fun observePendingTaskOperationCount(uid: String): Flow<Int>
+
+    @Query("SELECT taskId FROM pending_task_operations WHERE localUserId = :uid")
+    suspend fun getPendingTaskIds(uid: String): List<String>
+
+    @Query("SELECT * FROM pending_task_operations WHERE localUserId = :uid ORDER BY createdAt ASC, operationId ASC")
+    suspend fun getPendingTaskOperations(uid: String): List<PendingTaskOperationEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPendingTaskOperation(operation: PendingTaskOperationEntity)
+
+    @Query("DELETE FROM pending_task_operations WHERE operationId = :operationId")
+    suspend fun deletePendingTaskOperation(operationId: String)
+
+    @Transaction
+    suspend fun saveTaskAndQueue(task: TaskEntity, operation: PendingTaskOperationEntity) {
+        insertTask(task)
+        insertPendingTaskOperation(operation)
+    }
+
+    @Transaction
+    suspend fun deleteTaskAndQueue(taskId: String, uid: String, operation: PendingTaskOperationEntity) {
+        deleteTask(taskId, uid)
+        insertPendingTaskOperation(operation)
+    }
 
     // --- Sessions ---
     @Query("SELECT * FROM study_sessions WHERE localUserId = :uid ORDER BY startTime ASC")

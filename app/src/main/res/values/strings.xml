@@ -1,3 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">StudyHub</string>
+
+    <!-- Navigation and shared actions -->
+    <string name="nav_home">Home</string>
+    <string name="nav_groups">Groups</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_sessions">Sessions</string>
+    <string name="nav_profile">Profile</string>
+    <string name="back">‹  Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="save">Save</string>
+    <string name="close">Close</string>
+    <string name="see_all">See all</string>
+    <string name="you">You</string>
+    <string name="student">Student</string>
+
+    <!-- Welcome and authentication -->
+    <string name="welcome_logo_description">StudyHub logo</string>
+    <string name="welcome_tagline">Organize. Collaborate. Achieve. Together.</string>
+    <string name="welcome_headline">Make study time count</string>
+    <string name="welcome_description">Bring your study group together. Keep tasks, sessions, deadlines and conversations in one calm, organized space.</string>
+    <string name="welcome_create_account">Create your account</string>
+    <string name="welcome_login">I already have an account</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to pick up where your group left off.</string>
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">A better way to study together starts here.</string>
+    <string name="full_name">Full name</string>
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="log_in">Log in</string>
+    <string name="create_account">Create account</string>
+    <string name="or_continue_with">or continue with</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="new_to_studyhub">New to StudyHub?</string>
+    <string name="already_registered_login">Already registered?  Log in</string>
+    <string name="password_strength">Password strength</string>
+    <string name="date_of_birth_select">Date of birth  ·  Select date</string>
+    <string name="date_of_birth_format">Date of birth  ·  %1$s</string>
+
+    <!-- Dashboard -->
+    <string name="home_greeting">Good day, %1$s</string>
+    <string name="home_greeting_default">Good day, Student</string>
+    <string name="home_subtitle">Your study space is ready. What are we working on?</string>
+    <string name="thought_for_today">A thought for today</string>
+    <string name="quote_fallback">Small consistent effort beats one long night before the deadline.</string>
+    <string name="quote_author_format">— %1$s</string>
+    <string name="quote_author_default">— StudyHub</string>
+    <string name="home_groups_count_label">Groups</string>
+    <string name="home_todo_count_label">To do</string>
+    <string name="home_sessions_count_label">Sessions</string>
+    <string name="your_study_space">Your study space</string>
+    <string name="calendar">Calendar</string>
+    <string name="chat">Chat</string>
+    <string name="upcoming_tasks">Upcoming tasks</string>
+    <string name="next_study_session">Next study session</string>
+    <string name="empty_upcoming_sessions">No sessions scheduled yet.</string>
+    <string name="empty_tasks_caught_up">You’re all caught up. Add a task when you’re ready.</string>
+    <string name="location_tbc">Location to be confirmed</string>
+    <string name="location_tbc_short">Location TBC</string>
+
+    <!-- Study groups -->
+    <string name="my_study_groups">My study groups</string>
+    <string name="groups_subtitle">Keep your subjects and teammates together.</string>
+    <string name="search_groups">Search your groups</string>
+    <string name="filter_all">All</string>
+    <string name="filter_owned">Owned</string>
+    <string name="filter_joined">Joined</string>
+    <string name="create_study_group_button">+  Create a study group</string>
+    <string name="empty_groups_start">No groups yet. Create one to get started.</string>
+    <string name="empty_groups_search">No groups match your search.</string>
+    <string name="generic_study_group">Study group</string>
+    <string name="group_open_chat_hint">Tap to open your group chat.</string>
+    <string name="group_member_hint">Tap to open chat</string>
+    <plurals name="group_member_count">
+        <item quantity="one">%1$d member</item>
+        <item quantity="other">%1$d members</item>
+    </plurals>
+    <string name="group_members_format">%1$s · %2$s</string>
+    <string name="group_created">Study group created</string>
+    <string name="group_dialog_title">Create a study group</string>
+    <string name="group_name">Group name</string>
+    <string name="subject">Subject</string>
+    <string name="description">Description</string>
+    <string name="error_group_name">Enter a group name</string>
+
+    <!-- Tasks -->
+    <string name="my_tasks">My tasks</string>
+    <string name="tasks_subtitle">A clear next step makes a big assignment easier.</string>
+    <string name="pending">Pending</string>
+    <string name="completed">Completed</string>
+    <string name="add_task_button">+  Add a task</string>
+    <string name="empty_tasks">No tasks in this view.</string>
+    <string name="task_title">Task title</string>
+    <string name="assigned_to">Assigned to</string>
+    <string name="priority">Priority</string>
+    <string name="priority_high">High</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_low">Low</string>
+    <string name="task_due_tomorrow">Due tomorrow</string>
+    <string name="task_due_format">Due %1$s</string>
+    <string name="task_preview_format">%1$s · %2$s</string>
+    <string name="session_preview_format">%1$s · %2$s · %3$s</string>
+    <string name="task_priority_format">%1$s · %2$s priority</string>
+    <string name="task_added">Task added</string>
+    <string name="task_deleted">Task deleted</string>
+    <string name="task_dialog_title">Add a task</string>
+    <string name="add_task">Add task</string>
+    <string name="error_task_title">Enter a task title</string>
+    <string name="delete_task">Delete task</string>
+    <string name="mark_task_complete_format">Mark %1$s complete</string>
+    <string name="mark_task_incomplete_format">Mark %1$s incomplete</string>
+
+    <!-- Study sessions and calendar -->
+    <string name="study_sessions">Study sessions</string>
+    <string name="sessions_subtitle">Make time to learn together.</string>
+    <string name="schedule_session_button">+  Schedule a study session</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="empty_upcoming_sessions_list">No upcoming sessions yet.</string>
+    <string name="session_title">Session title</string>
+    <string name="session_cover_hint">What will you cover?</string>
+    <string name="location">Location</string>
+    <string name="session_date_default">Tomorrow · 14:00</string>
+    <string name="session_date_time_format">%1$s · %2$s</string>
+    <string name="schedule_session_title">Schedule a session</string>
+    <string name="schedule">Schedule</string>
+    <string name="session_scheduled">Session scheduled</string>
+    <string name="error_session_title">Enter a session title</string>
+    <string name="study_with_group">Study with your group</string>
+    <string name="session_location_attendance_format">%1$s · %2$s</string>
+    <plurals name="session_going_count"><item quantity="one">%1$d person going</item><item quantity="other">%1$d people going</item></plurals>
+    <string name="attending">I’m going ✓</string>
+    <string name="not_attending">I’m going</string>
+    <string name="study_calendar">Study calendar</string>
+    <string name="agenda">Agenda</string>
+    <string name="agenda_title_format">Agenda · %1$s</string>
+    <string name="empty_agenda">Nothing scheduled for this day.</string>
+    <string name="agenda_task_details">Task · Due %1$s</string>
+    <string name="agenda_session_details">Session · %1$s · %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+
+    <!-- Chat -->
+    <string name="group_chat">Group chat</string>
+    <string name="write_message">Write a message</string>
+    <string name="send_message">Send message</string>
+    <string name="choose_group_first">Choose a study group first</string>
+    <string name="studyhub_member">StudyHub member</string>
+
+    <!-- Profile and settings -->
+    <string name="your_profile">Your profile</string>
+    <string name="profile_email_placeholder">student@example.com</string>
+    <string name="default_course">Information Technology</string>
+    <string name="default_year">3rd Year</string>
+    <string name="profile_course_year_format">%1$s · %2$s</string>
+    <string name="profile_default_course_year">Information Technology · 3rd Year</string>
+    <string name="profile_stats_format">%1$d points · %2$s · %3$s</string>
+    <string name="profile_stats_zero">0 points · 0 tasks completed</string>
+    <string name="points_format">%1$d points</string>
+    <plurals name="tasks_completed_count">
+        <item quantity="one">%1$d task completed</item>
+        <item quantity="other">%1$d tasks completed</item>
+    </plurals>
+    <plurals name="groups_count">
+        <item quantity="one">%1$d group</item>
+        <item quantity="other">%1$d groups</item>
+    </plurals>
+    <string name="edit_profile">Edit profile</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="upload_profile_photo">Upload profile photo</string>
+    <string name="profile_photo_upload_success">Profile photo uploaded</string>
+    <string name="profile_photo_upload_failed">Could not upload photo. Choose another image or try again.</string>
+    <string name="preferences">Preferences</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="offline_sync">Sync changes when online</string>
+    <string name="data_saver">Data saver</string>
+    <string name="notifications">Notifications</string>
+    <string name="language">Language</string>
+    <string name="language_format">Language · %1$s</string>
+    <string name="language_default">Language · English</string>
+    <string name="choose_language">Choose language</string>
+    <string name="language_english">English</string>
+    <string name="language_afrikaans">Afrikaans</string>
+    <string name="language_isizulu">isiZulu</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_out_confirm">Sign out?</string>
+    <string name="sign_out_message">You can sign back in at any time.</string>
+    <string name="edit_profile_title">Edit profile</string>
+    <string name="course">Course</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_email_required">Email is required</string>
+
+    <!-- Locale-aware dates and validation/authentication feedback -->
+    <string name="due_overdue">Overdue</string>
+    <plurals name="due_in_days">
+        <item quantity="one">Due in %1$d day</item>
+        <item quantity="other">Due in %1$d days</item>
+    </plurals>
+    <string name="due_tomorrow">Due tomorrow</string>
+    <plurals name="due_in_hours">
+        <item quantity="one">Due in %1$d hour</item>
+        <item quantity="other">Due in %1$d hours</item>
+    </plurals>
+    <string name="due_today">Due today</string>
+    <string name="error_name_invalid">Enter your full name (at least 2 characters).</string>
+    <string name="error_email_invalid">Enter a valid email address.</string>
+    <string name="error_password_invalid">Use at least 8 characters with a number.</string>
+    <string name="error_dob_required">Select your date of birth.</string>
+    <string name="error_minimum_age">You must be at least 13 years old.</string>
+    <string name="auth_account_created">Account created successfully!</string>
+    <string name="auth_login_success">Login successful!</string>
+    <string name="error_login_email_format">Enter a valid email address, e.g. name@example.com</string>
+    <string name="error_password_required">Enter your password.</string>
+    <string name="error_email_unregistered">This email is not registered. Check the address or create an account.</string>
+    <string name="error_email_required_first">Enter your email address first.</string>
+    <string name="auth_reset_sent">Reset link sent. Check your inbox.</string>
+    <string name="error_email_exists">That email is already registered. Try logging in instead.</string>
+    <string name="error_password_weak">Password is too weak. Use at least 8 characters with a number.</string>
+    <string name="error_email_not_valid">That email address is not valid.</string>
+    <string name="error_incorrect_password">Incorrect password. Try again or reset it.</string>
+    <string name="error_not_registered">This email is not registered.</string>
+    <string name="error_google_credential">Unexpected Google credential type.</string>
+    <string name="error_google_cancelled">Sign-in was cancelled.</string>
+    <string name="error_google_configuration">Google sign-in is not configured. Check the SHA-1 fingerprint and Web Client ID in Firebase.</string>
+    <string name="error_network">No internet connection. Check your network and try again.</string>
+    <string name="error_firestore_permission">Firestore access was denied. Check the Firebase security rules.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+
+    <!-- Offline-first task sync -->
+    <string name="sync_status_title">Offline-ready tasks</string>
+    <string name="sync_status_saved">Tasks are saved on this device and sync automatically when you reconnect.</string>
+    <string name="sync_status_up_to_date">All changes are synced.</string>
+    <plurals name="sync_changes_waiting">
+        <item quantity="one">%1$d change waiting to sync</item>
+        <item quantity="other">%1$d changes waiting to sync</item>
+    </plurals>
+    <string name="sync_offline_notice">Saved on this device. It will sync when you’re online.</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">StudyHub updates</string>
+    <string name="notification_channel_description">Study group messages and important study reminders.</string>
+    <string name="notification_default_title">StudyHub update</string>
+    <string name="notification_default_body">You have a new study update.</string>
+    <string name="notification_new_message_title">New group message</string>
+    <string name="notification_new_message_body">%1$s sent a message: %2$s</string>
+    <string name="notification_channel_id" translatable="false">studyhub_updates</string>
+    <string name="notification_permission_denied">Notifications are disabled in your device settings.</string>
+    <string name="notification_task_reminder_title">Task reminder</string>
+    <string name="notification_task_reminder_body">“%1$s” is due soon.</string>
 </resources>
