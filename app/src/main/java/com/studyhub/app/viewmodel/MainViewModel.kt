@@ -1,8 +1,12 @@
 package com.studyhub.app.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.studyhub.app.R
+import com.studyhub.app.data.local.SettingsStore
 import com.studyhub.app.data.local.StudyHubDatabase
 import com.studyhub.app.data.model.ChatMessage
 import com.studyhub.app.data.model.QuoteDto
@@ -17,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 data class MainUiState(
     val profile: UserProfile? = null,
@@ -26,6 +31,7 @@ data class MainUiState(
     val messages: List<ChatMessage> = emptyList(),
     val quote: QuoteDto? = null,
     val activeGroupId: String? = null,
+    val pendingTaskSyncCount: Int = 0,
     val loading: Boolean = true,
     val error: String? = null
 ) {
@@ -38,7 +44,8 @@ data class MainUiState(
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = StudyHubDatabase.getDatabase(application)
-    private val repo = StudyHubRepository(localDao = database.dao())
+    private val repo = StudyHubRepository(localDao = database.dao(), appContext = application)
+    private val settingsStore = SettingsStore(application)
     private val apiRepo = ApiRepository()
 
     private val _state = MutableStateFlow(MainUiState())
@@ -59,9 +66,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repo.observeTasks().collect { tasks -> _state.update { it.copy(tasks = tasks) } }
         }
         viewModelScope.launch {
+            repo.observePendingTaskCount().collect { count ->
+                _state.update { it.copy(pendingTaskSyncCount = count) }
+            }
+        }
+        viewModelScope.launch {
+            settingsStore.offlineSync.collect { enabled ->
+                if (enabled) {
+                    FirebaseAuth.getInstance().currentUser?.uid?.let(repo::enqueuePendingTaskSync)
+                }
+            }
+        }
+        viewModelScope.launch {
+            settingsStore.language.collect { language -> loadQuote(language) }
+        }
+        viewModelScope.launch {
             repo.observeSessions().collect { s -> _state.update { it.copy(sessions = s) } }
         }
-        loadQuote()
     }
 
     fun updateProfile(updates: Map<String, Any>) = viewModelScope.launch {
@@ -71,8 +92,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Pulls the daily quote from our hosted REST API
-    fun loadQuote() = viewModelScope.launch {
-        apiRepo.dailyQuote().onSuccess { q -> _state.update { it.copy(quote = q) } }
+    fun loadQuote(languageTag: String = "en") = viewModelScope.launch {
+        _state.update { it.copy(quote = null) }
+        apiRepo.dailyQuote(languageTag).onSuccess { quote ->
+            _state.update { it.copy(quote = quote) }
+        }
     }
 
     fun openGroupChat(groupId: String) {
@@ -86,9 +110,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun sendMessage(text: String) {
         val groupId = _state.value.activeGroupId ?: return
-        val name = _state.value.profile?.name ?: "Student"
-        if (text.isBlank()) return
-        viewModelScope.launch { repo.sendMessage(groupId, name, text) }
+        val studentFallback = getApplication<Application>().getString(R.string.student)
+        val name = _state.value.profile?.name?.ifBlank { studentFallback } ?: studentFallback
+        val cleanText = text.trim()
+        if (cleanText.isBlank()) return
+        viewModelScope.launch {
+            val messageId = repo.sendMessage(groupId, name, cleanText).getOrNull() ?: return@launch
+            val idToken = runCatching {
+                FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
+            }.getOrNull()
+            if (!idToken.isNullOrBlank()) {
+                // Push is best-effort; the message remains sent if the API is not deployed.
+                apiRepo.notifyGroupMessage(idToken, groupId, messageId)
+            }
+        }
     }
 
     fun createGroup(name: String, subject: String, description: String) = viewModelScope.launch {
@@ -111,7 +146,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ).onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
     fun toggleTask(task: Task) = viewModelScope.launch {
-        repo.setTaskCompleted(task.id, !task.completed)
+        repo.setTaskCompleted(task)
     }
 
     fun deleteTask(taskId: String) = viewModelScope.launch { repo.deleteTask(taskId) }
@@ -126,8 +161,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearError() = _state.update { it.copy(error = null) }
 
-    fun updatePhoto(base64: String) = viewModelScope.launch {
-        repo.updateProfile(mapOf("photoUrl" to base64))
-            .onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
+    fun uploadProfilePhoto(uri: Uri, onResult: (Result<String>) -> Unit) = viewModelScope.launch {
+        val result = repo.uploadProfilePhoto(uri)
+        result.onSuccess { url ->
+            _state.update { state -> state.copy(profile = state.profile?.copy(photoUrl = url)) }
+        }.onFailure { error ->
+            _state.update { it.copy(error = error.localizedMessage) }
+        }
+        onResult(result)
     }
 }

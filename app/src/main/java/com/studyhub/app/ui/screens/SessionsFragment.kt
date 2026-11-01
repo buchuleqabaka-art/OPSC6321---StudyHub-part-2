@@ -20,7 +20,7 @@ class SessionsFragment : HubFragment(R.layout.fragment_sessions) {
         binding.buttonScheduleSession.setOnClickListener {
             DialogHelper.createSession(requireContext()) { session ->
                 mainViewModel.addSession(session)
-                Snackbar.make(binding.root, "Session scheduled", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.session_scheduled, Snackbar.LENGTH_SHORT).show()
             }
         }
         observe(mainViewModel.state) { state ->
@@ -36,12 +36,22 @@ class SessionsFragment : HubFragment(R.layout.fragment_sessions) {
         upcoming.forEach { session ->
             val row = ItemSessionBinding.inflate(layoutInflater, binding.sessionsContainer, false)
             row.sessionTitle.text = session.title
-            row.sessionDescription.text = session.description.ifBlank { "Study with your group" }
-            row.sessionDate.text = "${DateUtils.formatDate(session.startTime)} · ${DateUtils.formatRange(session.startTime, session.endTime)}"
-            row.sessionLocation.text = "${session.location.ifBlank { "Location to be confirmed" }} · ${session.goingCount} going"
+            row.sessionDescription.text = session.description.ifBlank { getString(R.string.study_with_group) }
+            row.sessionDate.text = getString(
+                R.string.session_date_time_format,
+                DateUtils.formatDate(requireContext(), session.startTime),
+                DateUtils.formatRange(requireContext(), session.startTime, session.endTime)
+            )
+            val location = session.location.ifBlank { getString(R.string.location_tbc) }
+            val attendance = resources.getQuantityString(
+                R.plurals.session_going_count,
+                session.goingCount,
+                session.goingCount
+            )
+            row.sessionLocation.text = getString(R.string.session_location_attendance_format, location, attendance)
             val uid = currentState.profile?.uid
             val attending = !uid.isNullOrBlank() && session.attendeeIds.contains(uid)
-            row.sessionAttend.text = if (attending) "I'm going ✓" else "I'm going"
+            row.sessionAttend.setText(if (attending) R.string.attending else R.string.not_attending)
             row.sessionAttend.setOnClickListener { mainViewModel.toggleAttendance(session.id) }
             binding.sessionsContainer.addView(row.root)
         }

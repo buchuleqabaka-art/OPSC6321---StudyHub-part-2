@@ -15,7 +15,7 @@
         android:paddingEnd="20dp"
         android:paddingBottom="28dp">
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Your profile" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/your_profile" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,17 +24,39 @@
             app:cardCornerRadius="22dp"
             app:cardElevation="1dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-                <TextView android:id="@+id/text_profile_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Student" android:textColor="@color/ink" android:textSize="23sp" android:textStyle="bold" />
-                <TextView android:id="@+id/text_profile_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="student@example.com" android:textColor="@color/ink_muted" />
-                <TextView android:id="@+id/text_profile_course" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Information Technology · 3rd Year" android:textColor="@color/ink" />
-                <TextView android:id="@+id/text_profile_stats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="0 points · 0 tasks completed" android:textColor="@color/ink_muted" android:textSize="13sp" />
+                <ImageView
+                    android:id="@+id/image_profile"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/bg_profile_photo"
+                    android:clipToOutline="true"
+                    android:contentDescription="@string/profile_photo"
+                    android:padding="18dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_upload_profile_photo"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/upload_profile_photo"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ink"
+                    app:cornerRadius="20dp"
+                    app:strokeColor="@color/lilac_primary_dark" />
+                <TextView android:id="@+id/text_profile_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/student" android:textColor="@color/ink" android:textSize="23sp" android:textStyle="bold" />
+                <TextView android:id="@+id/text_profile_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/profile_email_placeholder" android:textColor="@color/ink_muted" />
+                <TextView android:id="@+id/text_profile_course" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="@string/profile_default_course_year" android:textColor="@color/ink" />
+                <TextView android:id="@+id/text_profile_stats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/profile_stats_zero" android:textColor="@color/ink_muted" android:textSize="13sp" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_edit_profile"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="12dp"
-                    android:text="Edit profile"
+                    android:text="@string/edit_profile"
                     android:textAllCaps="false"
                     android:textColor="@color/ink"
                     app:cornerRadius="20dp"
@@ -42,7 +64,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Preferences" android:textColor="@color/ink" android:textSize="19sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/preferences" android:textColor="@color/ink" android:textSize="19sp" android:textStyle="bold" />
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,10 +73,10 @@
             app:cardCornerRadius="22dp"
             app:cardElevation="1dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="18dp" android:paddingTop="8dp" android:paddingEnd="18dp" android:paddingBottom="8dp">
-                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_dark_mode" android:layout_width="match_parent" android:layout_height="56dp" android:text="Dark mode" android:textColor="@color/ink" />
-                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_offline_sync" android:layout_width="match_parent" android:layout_height="56dp" android:text="Offline sync" android:textColor="@color/ink" />
-                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_data_saver" android:layout_width="match_parent" android:layout_height="56dp" android:text="Data saver" android:textColor="@color/ink" />
-                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_notifications" android:layout_width="match_parent" android:layout_height="56dp" android:text="Notifications" android:textColor="@color/ink" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_dark_mode" android:layout_width="match_parent" android:layout_height="56dp" android:text="@string/dark_mode" android:textColor="@color/ink" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_offline_sync" android:layout_width="match_parent" android:layout_height="56dp" android:text="@string/offline_sync" android:textColor="@color/ink" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_data_saver" android:layout_width="match_parent" android:layout_height="56dp" android:text="@string/data_saver" android:textColor="@color/ink" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_notifications" android:layout_width="match_parent" android:layout_height="56dp" android:text="@string/notifications" android:textColor="@color/ink" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -65,7 +87,7 @@
             android:layout_height="52dp"
             android:layout_marginTop="14dp"
             android:gravity="start|center_vertical"
-            android:text="Language · English"
+            android:text="@string/language_default"
             android:textAllCaps="false"
             android:textColor="@color/ink"
             app:cornerRadius="22dp"
@@ -77,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="24dp"
-            android:text="Sign out"
+            android:text="@string/sign_out"
             android:textAllCaps="false"
             android:textColor="#FFB3261E"
             app:cornerRadius="24dp"

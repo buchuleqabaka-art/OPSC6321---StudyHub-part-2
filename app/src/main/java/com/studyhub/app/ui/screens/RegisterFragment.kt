@@ -21,7 +21,7 @@ class RegisterFragment : HubFragment(R.layout.fragment_register) {
         binding.nameInput.setText(initial.name)
         binding.emailInput.setText(initial.email)
         binding.passwordInput.setText(initial.password)
-        if (initial.dateOfBirth.isNotBlank()) binding.buttonDob.text = "Date of birth  ·  ${initial.dateOfBirth}"
+        if (initial.dateOfBirth.isNotBlank()) binding.buttonDob.text = getString(R.string.date_of_birth_format, initial.dateOfBirth)
 
         binding.buttonBack.setOnClickListener { navigator.navigate(Routes.WELCOME, clearBackStack = true) }
         binding.textGoLogin.setOnClickListener { navigator.navigate(Routes.LOGIN) }
@@ -36,7 +36,7 @@ class RegisterFragment : HubFragment(R.layout.fragment_register) {
                 { _, year, month, day ->
                     val value = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, day)
                     authViewModel.onDobChange(value)
-                    binding.buttonDob.text = "Date of birth  ·  $value"
+                    binding.buttonDob.text = getString(R.string.date_of_birth_format, value)
                 },
                 current.get(Calendar.YEAR) - 20,
                 current.get(Calendar.MONTH),
@@ -51,18 +51,18 @@ class RegisterFragment : HubFragment(R.layout.fragment_register) {
         }
 
         observe(authViewModel.state) { state ->
-            binding.nameLayout.error = state.nameError
-            binding.emailLayout.error = state.emailError
-            binding.passwordLayout.error = state.passwordError
-            binding.textDobError.text = state.dobError.orEmpty()
-            binding.textDobError.visibility = if (state.dobError.isNullOrBlank()) View.GONE else View.VISIBLE
+            binding.nameLayout.error = state.nameError?.let(::getString)
+            binding.emailLayout.error = state.emailError?.let(::getString)
+            binding.passwordLayout.error = state.passwordError?.let(::getString)
+            binding.textDobError.text = state.dobError?.let(::getString).orEmpty()
+            binding.textDobError.visibility = if (state.dobError == null) View.GONE else View.VISIBLE
             binding.passwordStrength.progress = state.passwordStrength
             binding.registerProgress.visibility = if (state.loading) View.VISIBLE else View.GONE
             binding.buttonRegister.isEnabled = !state.loading
             binding.buttonGoogle.isEnabled = !state.loading
-            binding.textGeneralError.visibility = if (state.generalError.isNullOrBlank()) View.GONE else View.VISIBLE
-            binding.textGeneralError.text = state.generalError.orEmpty()
-            val message = state.infoMessage ?: state.generalError
+            binding.textGeneralError.visibility = if (state.generalError == null) View.GONE else View.VISIBLE
+            binding.textGeneralError.text = state.generalError?.let(::getString).orEmpty()
+            val message = (state.infoMessage ?: state.generalError)?.let(::getString)
             if (!message.isNullOrBlank() && message != lastMessage) {
                 lastMessage = message
                 Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()

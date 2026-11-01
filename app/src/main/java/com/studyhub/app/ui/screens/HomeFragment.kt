@@ -1,7 +1,6 @@
 package com.studyhub.app.ui.screens
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.studyhub.app.R
@@ -38,25 +37,52 @@ class HomeFragment : HubFragment(R.layout.fragment_home) {
     }
 
     private fun render(state: MainUiState) {
-        binding.tvGreeting.text = "Good day, ${state.profile?.name?.substringBefore(' ')?.ifBlank { "Student" } ?: "Student"}"
+        val studentName = state.profile?.name?.substringBefore(' ')?.ifBlank { null }
+            ?: getString(R.string.student)
+        binding.tvGreeting.text = getString(R.string.home_greeting, studentName)
         binding.tvGroupCount.text = state.groups.size.toString()
         binding.tvTaskCount.text = state.pendingTasks.size.toString()
-        binding.tvSessionCount.text = state.sessions.count { it.startTime >= System.currentTimeMillis() }.toString()
-        binding.tvQuote.text = state.quote?.content ?: "Small consistent effort beats one long night before the deadline."
-        binding.tvQuoteAuthor.text = "— ${state.quote?.author?.ifBlank { "StudyHub" } ?: "StudyHub"}"
-        renderPreviews(binding.containerUpcomingTasks, state.upcomingTasks) { task ->
-            task.title to "${DateUtils.formatDate(task.dueDate)} · ${DateUtils.dueInLabel(task.dueDate)}"
+        binding.tvSessionCount.text = state.sessions.count {
+            it.startTime >= System.currentTimeMillis()
+        }.toString()
+        binding.tvQuote.text = state.quote?.content?.takeIf { it.isNotBlank() }
+            ?: getString(R.string.quote_fallback)
+        val quoteAuthor = state.quote?.author?.ifBlank { null } ?: getString(R.string.app_name)
+        binding.tvQuoteAuthor.text = getString(R.string.quote_author_format, quoteAuthor)
+        binding.textSyncStatus.text = if (state.pendingTaskSyncCount == 0) {
+            getString(R.string.sync_status_up_to_date)
+        } else {
+            resources.getQuantityString(
+                R.plurals.sync_changes_waiting,
+                state.pendingTaskSyncCount,
+                state.pendingTaskSyncCount
+            )
         }
-        val next = state.nextSession
+
+        renderPreviews(binding.containerUpcomingTasks, state.upcomingTasks) { task ->
+            getString(
+                R.string.task_preview_format,
+                DateUtils.formatDate(requireContext(), task.dueDate),
+                DateUtils.dueInLabel(requireContext(), task.dueDate)
+            ).let { task.title to it }
+        }
+
         binding.containerUpcomingSessions.removeAllViews()
+        val next = state.nextSession
         if (next != null) {
             val row = ItemPreviewBinding.inflate(layoutInflater, binding.containerUpcomingSessions, false)
             row.previewTitle.text = next.title
-            row.previewDetail.text = "${DateUtils.formatDate(next.startTime)} · ${DateUtils.formatRange(next.startTime, next.endTime)} · ${next.location.ifBlank { "Location TBC" }}"
+            val location = next.location.ifBlank { getString(R.string.location_tbc_short) }
+            row.previewDetail.text = getString(
+                R.string.session_preview_format,
+                DateUtils.formatDate(requireContext(), next.startTime),
+                DateUtils.formatRange(requireContext(), next.startTime, next.endTime),
+                location
+            )
             binding.containerUpcomingSessions.addView(row.root)
             row.root.setOnClickListener { navigator.navigate(Routes.SESSIONS, clearBackStack = true) }
         } else {
-            addEmptyText(binding.containerUpcomingSessions, "No sessions scheduled yet.")
+            addEmptyText(binding.containerUpcomingSessions, getString(R.string.empty_upcoming_sessions))
         }
     }
 
@@ -67,7 +93,7 @@ class HomeFragment : HubFragment(R.layout.fragment_home) {
     ) {
         container.removeAllViews()
         if (tasks.isEmpty()) {
-            addEmptyText(container, "You're all caught up. Add a task when you're ready.")
+            addEmptyText(container, getString(R.string.empty_tasks_caught_up))
             return
         }
         tasks.take(3).forEach { task ->

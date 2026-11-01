@@ -30,14 +30,32 @@ class CalendarFragment : HubFragment(R.layout.fragment_calendar) {
     }
 
     private fun renderAgenda(binding: FragmentCalendarBinding) {
-        binding.textAgendaTitle.text = "Agenda · ${DateUtils.formatDate(selectedDay)}"
+        binding.textAgendaTitle.text = getString(
+            R.string.agenda_title_format,
+            DateUtils.formatDate(requireContext(), selectedDay)
+        )
         val tasks = currentState.tasks.filter { DateUtils.isSameDay(it.dueDate, selectedDay) }
         val sessions = currentState.sessions.filter { DateUtils.isSameDay(it.startTime, selectedDay) }
         binding.agendaContainer.removeAllViews()
         binding.textEmptyAgenda.visibility = if (tasks.isEmpty() && sessions.isEmpty()) View.VISIBLE else View.GONE
-        tasks.forEach { addAgendaRow(binding.agendaContainer, it.title, "Task · Due ${DateUtils.formatDate(it.dueDate)}") }
-        sessions.forEach {
-            addAgendaRow(binding.agendaContainer, it.title, "Session · ${DateUtils.formatRange(it.startTime, it.endTime)} · ${it.location.ifBlank { "Location TBC" }}")
+        tasks.forEach { task ->
+            addAgendaRow(
+                binding.agendaContainer,
+                task.title,
+                getString(R.string.agenda_task_details, DateUtils.formatDate(requireContext(), task.dueDate))
+            )
+        }
+        sessions.forEach { session ->
+            val location = session.location.ifBlank { getString(R.string.location_tbc_short) }
+            addAgendaRow(
+                binding.agendaContainer,
+                session.title,
+                getString(
+                    R.string.agenda_session_details,
+                    DateUtils.formatRange(requireContext(), session.startTime, session.endTime),
+                    location
+                )
+            )
         }
     }
 

@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     private val logging = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+        // Never log Authorization headers or FCM tokens from request bodies.
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
         else HttpLoggingInterceptor.Level.NONE
     }
 

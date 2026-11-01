@@ -13,11 +13,11 @@
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:text="‹  Back"
+        android:text="@string/back"
         android:textAllCaps="false"
         android:textColor="@color/ink" />
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Study calendar" android:textColor="@color/ink" android:textSize="27sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="@string/study_calendar" android:textColor="@color/ink" android:textSize="27sp" android:textStyle="bold" />
 
     <CalendarView
         android:id="@+id/calendar_view"
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="14dp"
-        android:text="Agenda"
+        android:text="@string/agenda"
         android:textColor="@color/ink"
         android:textSize="19sp"
         android:textStyle="bold" />
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Nothing scheduled for this day."
+        android:text="@string/empty_agenda"
         android:textColor="@color/ink_muted" />
 
     <ScrollView

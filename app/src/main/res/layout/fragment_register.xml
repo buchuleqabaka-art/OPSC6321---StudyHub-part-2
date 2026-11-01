@@ -20,7 +20,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="‹  Back"
+            android:text="@string/back"
             android:textAllCaps="false"
             android:textColor="@color/ink" />
 
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Create your account"
+            android:text="@string/welcome_create_account"
             android:textColor="@color/ink"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="20dp"
-            android:text="A better way to study together starts here."
+            android:text="@string/register_subtitle"
             android:textColor="@color/ink_muted"
             android:textSize="15sp" />
 
@@ -47,7 +47,7 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full name"
+            android:hint="@string/full_name"
             app:boxCornerRadiusBottomEnd="18dp"
             app:boxCornerRadiusBottomStart="18dp"
             app:boxCornerRadiusTopEnd="18dp"
@@ -67,7 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Email address"
+            android:hint="@string/email_address"
             app:boxCornerRadiusBottomEnd="18dp"
             app:boxCornerRadiusBottomStart="18dp"
             app:boxCornerRadiusTopEnd="18dp"
@@ -87,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Password"
+            android:hint="@string/password"
             app:boxCornerRadiusBottomEnd="18dp"
             app:boxCornerRadiusBottomStart="18dp"
             app:boxCornerRadiusTopEnd="18dp"
@@ -106,7 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
-            android:text="Password strength"
+            android:text="@string/password_strength"
             android:textColor="@color/ink_muted"
             android:textSize="13sp" />
 
@@ -127,7 +127,7 @@
             android:layout_height="54dp"
             android:layout_marginTop="14dp"
             android:gravity="start|center_vertical"
-            android:text="Date of birth  ·  Select date"
+            android:text="@string/date_of_birth_select"
             android:textAllCaps="false"
             android:textColor="@color/ink"
             app:cornerRadius="18dp"
@@ -155,7 +155,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="18dp"
-            android:text="Create account"
+            android:text="@string/create_account"
             android:textAllCaps="false"
             android:textSize="16sp"
             app:backgroundTint="@color/lilac_primary_dark"
@@ -175,7 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:gravity="center"
-            android:text="or continue with"
+            android:text="@string/or_continue_with"
             android:textColor="@color/ink_muted"
             android:textSize="14sp" />
 
@@ -185,7 +185,7 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="10dp"
-            android:text="Continue with Google"
+            android:text="@string/continue_with_google"
             android:textAllCaps="false"
             android:textColor="@color/ink"
             app:cornerRadius="27dp"
@@ -197,7 +197,7 @@
             android:layout_height="52dp"
             android:layout_marginTop="14dp"
             android:gravity="center"
-            android:text="Already registered?  Log in"
+            android:text="@string/already_registered_login"
             android:textColor="@color/lilac_primary_dark"
             android:textStyle="bold" />
     </LinearLayout>

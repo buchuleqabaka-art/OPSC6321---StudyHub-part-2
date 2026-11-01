@@ -1,6 +1,5 @@
 package com.studyhub.app.util
 
-import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
@@ -10,9 +9,8 @@ import javax.crypto.spec.PBEKeySpec
  *
  * Firebase Authentication never receives a plain password over the wire in
  * storage terms - it hashes with scrypt server-side and we never keep the raw
- * value. This object covers the two places we still touch a password locally:
- * generating a salted PBKDF2 hash for the offline verification check, and
- * producing a fingerprint we can log safely.
+ * value. This object covers the local offline-verification check by deriving a
+ * salted PBKDF2 hash; password values and derived hashes must never be logged.
  */
 object PasswordSecurity {
 
@@ -40,12 +38,6 @@ object PasswordSecurity {
         var diff = 0
         for (i in actual.indices) diff = diff or (actual[i].code xor expectedHash[i].code)
         return diff == 0
-    }
-
-    /** Short non-reversible fingerprint - safe to write to Logcat. */
-    fun fingerprint(password: String): String {
-        val digest = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
-        return digest.toHex().take(8)
     }
 
     private fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }

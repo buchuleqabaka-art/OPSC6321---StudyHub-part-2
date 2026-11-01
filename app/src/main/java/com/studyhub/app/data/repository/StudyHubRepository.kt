@@ -1,10 +1,16 @@
 package com.studyhub.app.data.repository
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
+import com.studyhub.app.data.local.PendingTaskOperationEntity
 import com.studyhub.app.data.local.StudyHubDao
+import com.studyhub.app.data.local.TaskSyncCodec
 import com.studyhub.app.data.local.toEntity
 import com.studyhub.app.data.local.toModel
 import com.studyhub.app.data.model.ChatMessage
@@ -12,6 +18,7 @@ import com.studyhub.app.data.model.StudyGroup
 import com.studyhub.app.data.model.StudySession
 import com.studyhub.app.data.model.Task
 import com.studyhub.app.data.model.UserProfile
+import com.studyhub.app.data.sync.TaskSyncScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,6 +31,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 /**
  * Everything that reads or writes Firestore. Uses Room as a local cache to
@@ -36,7 +44,9 @@ import kotlinx.coroutines.tasks.await
 class StudyHubRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val localDao: StudyHubDao
+    private val localDao: StudyHubDao,
+    private val appContext: Context,
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -47,6 +57,7 @@ class StudyHubRepository(
         private const val TASKS = "tasks"
         private const val SESSIONS = "sessions"
         private const val MESSAGES = "messages"
+        private const val MAX_PROFILE_PHOTO_BYTES = 5L * 1024L * 1024L
     }
 
     /** Emits the current uid immediately, then again every time sign-in state changes. */
@@ -78,7 +89,25 @@ class StudyHubRepository(
 
     suspend fun updateProfile(updates: Map<String, Any>): Result<Unit> = runCatching {
         val currentUid = auth.currentUser?.uid.orEmpty()
+        require(currentUid.isNotBlank()) { "A signed-in account is required to update a profile" }
         firestore.collection(USERS).document(currentUid).update(updates).await()
+    }
+
+    suspend fun uploadProfilePhoto(uri: Uri): Result<String> = runCatching {
+        val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+            ?: error("A signed-in account is required to upload a profile photo")
+        val mimeType = appContext.contentResolver.getType(uri)
+            ?.takeIf { it.startsWith("image/") }
+            ?: error("Choose a valid image file")
+        val size = appContext.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
+        require(size <= MAX_PROFILE_PHOTO_BYTES || size < 0) { "Profile photos must be smaller than 5 MB" }
+
+        val imageRef = storage.reference.child("profile-photos/$currentUid/profile-image")
+        val metadata = StorageMetadata.Builder().setContentType(mimeType).build()
+        imageRef.putFile(uri, metadata).await()
+        val downloadUrl = imageRef.downloadUrl.await().toString()
+        firestore.collection(USERS).document(currentUid).update("photoUrl", downloadUrl).await()
+        downloadUrl
     }
 
     // --- Groups -------------------------------------------------------------
@@ -143,33 +172,77 @@ class StudyHubRepository(
             .map { list -> list.map { it.toModel() } }
             .onStart {
                 if (currentUid.isNotEmpty()) {
+                    TaskSyncScheduler.enqueue(appContext, currentUid)
                     firestore.collection(TASKS)
                         .whereEqualTo("ownerId", currentUid)
                         .orderBy("dueDate", Query.Direction.ASCENDING)
                         .addSnapshotListener { snap, error ->
                             if (error == null && snap != null) {
-                                val tasks = snap.toObjects(Task::class.java)
-                                scope.launch { localDao.insertTasks(tasks.map { it.toEntity(currentUid) }) }
+                                val remoteTasks = snap.toObjects(Task::class.java)
+                                scope.launch {
+                                    // Keep the local optimistic version visible until its queued
+                                    // write/delete has been acknowledged by Firestore.
+                                    val pendingIds = localDao.getPendingTaskIds(currentUid).toSet()
+                                    val safeTasks = remoteTasks.filterNot { it.id in pendingIds }
+                                    localDao.insertTasks(safeTasks.map { it.toEntity(currentUid) })
+                                }
                             }
                         }
                 }
             }
     }
 
-    suspend fun addTask(task: Task): Result<String> = runCatching {
-        val currentUid = auth.currentUser?.uid.orEmpty()
-        val ref = firestore.collection(TASKS).add(task.copy(ownerId = currentUid)).await()
-        localDao.insertTasks(listOf(task.copy(id = ref.id, ownerId = currentUid).toEntity(currentUid)))
-        ref.id
+    fun observePendingTaskCount(): Flow<Int> = authUidFlow().flatMapLatest { currentUid ->
+        if (currentUid.isNotBlank()) TaskSyncScheduler.enqueue(appContext, currentUid)
+        localDao.observePendingTaskOperationCount(currentUid)
     }
 
-    suspend fun setTaskCompleted(taskId: String, completed: Boolean): Result<Unit> = runCatching {
-        firestore.collection(TASKS).document(taskId).update("completed", completed).await()
+    fun enqueuePendingTaskSync(uid: String) = TaskSyncScheduler.enqueue(appContext, uid)
+
+    suspend fun addTask(task: Task): Result<String> = runCatching {
+        val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+            ?: error("A signed-in account is required to create a task")
+        val taskId = firestore.collection(TASKS).document().id
+        val localTask = task.copy(id = taskId, ownerId = currentUid)
+        val operation = PendingTaskOperationEntity(
+            operationId = UUID.randomUUID().toString(),
+            localUserId = currentUid,
+            taskId = taskId,
+            operation = TaskSyncCodec.UPSERT,
+            payload = TaskSyncCodec.encode(localTask)
+        )
+        localDao.saveTaskAndQueue(localTask.toEntity(currentUid), operation)
+        TaskSyncScheduler.enqueue(appContext, currentUid)
+        taskId
+    }
+
+    suspend fun setTaskCompleted(task: Task): Result<Unit> = runCatching {
+        val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+            ?: error("A signed-in account is required to update a task")
+        val updated = task.copy(completed = !task.completed, ownerId = currentUid)
+        val operation = PendingTaskOperationEntity(
+            operationId = UUID.randomUUID().toString(),
+            localUserId = currentUid,
+            taskId = updated.id,
+            operation = TaskSyncCodec.UPSERT,
+            payload = TaskSyncCodec.encode(updated)
+        )
+        localDao.saveTaskAndQueue(updated.toEntity(currentUid), operation)
+        TaskSyncScheduler.enqueue(appContext, currentUid)
     }
 
     suspend fun deleteTask(taskId: String): Result<Unit> = runCatching {
-        firestore.collection(TASKS).document(taskId).delete().await()
-        localDao.deleteTask(taskId)
+        val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+            ?: error("A signed-in account is required to delete a task")
+        val operation = PendingTaskOperationEntity(
+            operationId = UUID.randomUUID().toString(),
+            localUserId = currentUid,
+            taskId = taskId,
+            operation = TaskSyncCodec.DELETE,
+            payload = ""
+        )
+        localDao.deleteTaskAndQueue(taskId, currentUid, operation)
+        TaskSyncScheduler.enqueue(appContext, currentUid)
     }
 
     // --- Study sessions -----------------------------------------------------
@@ -227,14 +300,21 @@ class StudyHubRepository(
             }
     }
 
-    suspend fun sendMessage(groupId: String, senderName: String, text: String): Result<Unit> =
+    suspend fun sendMessage(groupId: String, senderName: String, text: String): Result<String> =
         runCatching {
-            val currentUid = auth.currentUser?.uid.orEmpty()
+            val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+                ?: error("A signed-in account is required to send a message")
+            val messageRef = firestore.collection(GROUPS).document(groupId)
+                .collection(MESSAGES).document()
             val message = ChatMessage(
-                groupId = groupId, senderId = currentUid, senderName = senderName, text = text.trim()
+                id = messageRef.id,
+                groupId = groupId,
+                senderId = currentUid,
+                senderName = senderName,
+                text = text.trim()
             )
-            firestore.collection(GROUPS).document(groupId)
-                .collection(MESSAGES).add(message).await()
-            Unit
+            localDao.insertMessages(listOf(message.toEntity(currentUid)))
+            messageRef.set(message).await()
+            messageRef.id
         }
 }
