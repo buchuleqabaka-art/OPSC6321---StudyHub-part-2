@@ -51,6 +51,24 @@
             android:paddingBottom="8dp" />
     </ScrollView>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/chat_load_retry"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/chat_load_failed_retry"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_send_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:accessibilityLiveRegion="polite"
+        android:text="@string/chat_sending"
+        android:textColor="@color/ink_muted"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

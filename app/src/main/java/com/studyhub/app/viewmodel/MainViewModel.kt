@@ -16,12 +16,15 @@ import com.studyhub.app.data.model.Task
 import com.studyhub.app.data.model.UserProfile
 import com.studyhub.app.data.repository.ApiRepository
 import com.studyhub.app.data.repository.StudyHubRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 data class MainUiState(
     val profile: UserProfile? = null,
@@ -29,6 +32,8 @@ data class MainUiState(
     val tasks: List<Task> = emptyList(),
     val sessions: List<StudySession> = emptyList(),
     val messages: List<ChatMessage> = emptyList(),
+    val chatComposers: Map<String, ChatComposer> = emptyMap(),
+    val chatLoadFailed: Boolean = false,
     val quote: QuoteDto? = null,
     val activeGroupId: String? = null,
     val pendingTaskSyncCount: Int = 0,
@@ -51,7 +56,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow(MainUiState())
     val state: StateFlow<MainUiState> = _state.asStateFlow()
 
-    init { start() }
+    private var chatJob: Job? = null
+    private val chatSendJobs = mutableListOf<Job>()
+    private var chatUid = FirebaseAuth.getInstance().currentUser?.uid
+    private var chatGeneration = 0L
+    private val chatAuthListener = FirebaseAuth.AuthStateListener { auth ->
+        if (auth.currentUser?.uid != chatUid) {
+            chatUid = auth.currentUser?.uid
+            chatGeneration++
+            chatJob?.cancel()
+            chatSendJobs.forEach { it.cancel() }
+            chatSendJobs.clear()
+            _state.update {
+                it.copy(activeGroupId = null, messages = emptyList(), chatComposers = emptyMap(), chatLoadFailed = false)
+            }
+        }
+    }
+
+    init {
+        FirebaseAuth.getInstance().addAuthStateListener(chatAuthListener)
+        start()
+    }
+
+    override fun onCleared() {
+        FirebaseAuth.getInstance().removeAuthStateListener(chatAuthListener)
+        super.onCleared()
+    }
 
     private fun start() {
         viewModelScope.launch {
@@ -100,27 +130,57 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openGroupChat(groupId: String) {
-        _state.update { it.copy(activeGroupId = groupId, messages = emptyList()) }
-        viewModelScope.launch {
-            repo.observeMessages(groupId).collect { msgs ->
-                _state.update { it.copy(messages = msgs) }
-            }
+        if (groupId.isBlank()) return
+        chatJob?.cancel()
+        val generation = chatGeneration
+        _state.update { it.copy(activeGroupId = groupId, messages = emptyList(), chatLoadFailed = false) }
+        chatJob = viewModelScope.launch {
+            repo.observeMessages(groupId)
+                .catch {
+                    if (generation == chatGeneration && _state.value.activeGroupId == groupId) {
+                        _state.update { it.copy(chatLoadFailed = true) }
+                    }
+                }
+                .collect { msgs ->
+                    if (generation == chatGeneration && _state.value.activeGroupId == groupId) {
+                        _state.update { it.copy(messages = msgs) }
+                    }
+                }
         }
     }
 
-    fun sendMessage(text: String) {
+    fun editChatDraft(text: String) {
         val groupId = _state.value.activeGroupId ?: return
+        _state.update { state ->
+            val composer = state.chatComposers[groupId] ?: ChatComposer()
+            state.copy(chatComposers = state.chatComposers + (groupId to composer.edit(text)))
+        }
+    }
+
+    fun sendMessage() {
+        val groupId = _state.value.activeGroupId ?: return
+        val current = _state.value.chatComposers[groupId] ?: return
+        if (current.sending || current.text.isBlank() || chatUid == null) return
+        val attempt = current.begin(UUID.randomUUID().toString())
+        val messageId = attempt.messageId ?: return
+        val generation = chatGeneration
         val studentFallback = getApplication<Application>().getString(R.string.student)
         val name = _state.value.profile?.name?.ifBlank { studentFallback } ?: studentFallback
-        val cleanText = text.trim()
-        if (cleanText.isBlank()) return
-        viewModelScope.launch {
-            val messageId = repo.sendMessage(groupId, name, cleanText).getOrNull() ?: return@launch
+        _state.update { it.copy(chatComposers = it.chatComposers + (groupId to attempt)) }
+        chatSendJobs.removeAll { it.isCompleted }
+        chatSendJobs += viewModelScope.launch {
+            val result = repo.sendMessage(groupId, name, attempt.text, messageId)
+            if (generation != chatGeneration) return@launch
+            _state.update { state ->
+                val composer = state.chatComposers[groupId] ?: return@update state
+                state.copy(chatComposers = state.chatComposers + (groupId to composer.finish(messageId, result.isSuccess)))
+            }
+            if (result.isFailure) return@launch
             val idToken = runCatching {
                 FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
             }.getOrNull()
-            if (!idToken.isNullOrBlank()) {
-                // Push is best-effort; the message remains sent if the API is not deployed.
+            if (generation == chatGeneration && !idToken.isNullOrBlank()) {
+                // Push failure does not change the successfully sent message.
                 apiRepo.notifyGroupMessage(idToken, groupId, messageId)
             }
         }

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
@@ -19,13 +20,16 @@ import com.studyhub.app.data.model.StudySession
 import com.studyhub.app.data.model.Task
 import com.studyhub.app.data.model.UserProfile
 import com.studyhub.app.data.sync.TaskSyncScheduler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -286,26 +290,39 @@ class StudyHubRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeMessages(groupId: String): Flow<List<ChatMessage>> = authUidFlow().flatMapLatest { currentUid ->
-        localDao.observeMessages(groupId, currentUid)
-            .map { list -> list.map { it.toModel() } }
-            .onStart {
-                firestore.collection(GROUPS).document(groupId).collection(MESSAGES)
-                    .orderBy("sentAt", Query.Direction.ASCENDING)
-                    .addSnapshotListener { snap, error ->
-                        if (error == null && snap != null) {
-                            val messages = snap.toObjects(ChatMessage::class.java)
-                            scope.launch { localDao.insertMessages(messages.map { it.toEntity(currentUid) }) }
-                        }
-                    }
+        if (currentUid.isBlank()) return@flatMapLatest flowOf(emptyList())
+        callbackFlow {
+            val cacheJob = launch {
+                localDao.observeMessages(groupId, currentUid).collect { cached ->
+                    send(cached.map { it.toModel() })
+                }
             }
+            val registration = firestore.collection(GROUPS).document(groupId).collection(MESSAGES)
+                .orderBy("sentAt", Query.Direction.ASCENDING)
+                .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                    } else if (snapshot != null) {
+                        // Firestore emits local writes before the server accepts them. Keep those
+                        // in the sending composer, not in the confirmed-message cache.
+                        val confirmed = snapshot.documents.filterNot { it.metadata.hasPendingWrites() }
+                            .mapNotNull { it.toObject(ChatMessage::class.java) }
+                        launch { localDao.insertMessages(confirmed.map { it.toEntity(currentUid) }) }
+                    }
+                }
+            awaitClose {
+                registration.remove()
+                cacheJob.cancel()
+            }
+        }
     }
 
-    suspend fun sendMessage(groupId: String, senderName: String, text: String): Result<String> =
+    suspend fun sendMessage(groupId: String, senderName: String, text: String, messageId: String): Result<String> =
         runCatching {
             val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
                 ?: error("A signed-in account is required to send a message")
             val messageRef = firestore.collection(GROUPS).document(groupId)
-                .collection(MESSAGES).document()
+                .collection(MESSAGES).document(messageId)
             val message = ChatMessage(
                 id = messageRef.id,
                 groupId = groupId,
@@ -313,8 +330,8 @@ class StudyHubRepository(
                 senderName = senderName,
                 text = text.trim()
             )
-            localDao.insertMessages(listOf(message.toEntity(currentUid)))
+            require(message.text.isNotBlank() && message.text.length <= 2000)
             messageRef.set(message).await()
             messageRef.id
-        }
+        }.onFailure { if (it is CancellationException) throw it }
 }
