@@ -14,6 +14,8 @@ import com.studyhub.app.ui.navigation.Routes
 import com.studyhub.app.ui.navigation.StudyHubNavigator
 import com.studyhub.app.ui.screens.CalendarFragment
 import com.studyhub.app.ui.screens.ChatFragment
+import com.studyhub.app.ui.screens.GroupDetailFragment
+import com.studyhub.app.viewmodel.MainViewModel
 import com.studyhub.app.ui.screens.GroupsFragment
 import com.studyhub.app.ui.screens.HomeFragment
 import com.studyhub.app.ui.screens.LoginFragment
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
     private lateinit var binding: ActivityMainBinding
     private val authViewModel: AuthViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
     private var currentRoute: String = ""
     private var pushRegistrationRequested = false
 
@@ -40,6 +43,7 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
         setContentView(binding.root)
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
+            mainViewModel.selectPlanningGroup(null)
             val route = when (item.itemId) {
                 R.id.nav_groups -> Routes.GROUPS
                 R.id.nav_tasks -> Routes.TASKS
@@ -115,6 +119,7 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
             Routes.LOGIN -> LoginFragment()
             Routes.REGISTER -> RegisterFragment()
             Routes.HOME -> HomeFragment()
+            Routes.GROUP_DETAIL -> GroupDetailFragment()
             Routes.GROUPS -> GroupsFragment()
             Routes.TASKS -> TasksFragment()
             Routes.CALENDAR -> CalendarFragment()

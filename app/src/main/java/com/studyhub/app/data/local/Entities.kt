@@ -41,9 +41,9 @@ fun UserProfile.toEntity() = UserProfileEntity(
     createdAt = createdAt
 )
 
-@Entity(tableName = "study_groups")
+@Entity(tableName = "study_groups", primaryKeys = ["id", "localUserId"])
 data class StudyGroupEntity(
-    @PrimaryKey val id: String,
+    val id: String,
     val localUserId: String,
     val name: String,
     val subject: String,
@@ -64,9 +64,9 @@ fun StudyGroup.toEntity(uid: String) = StudyGroupEntity(
     ownerId = ownerId, memberIds = memberIds, iconKey = iconKey, createdAt = createdAt
 )
 
-@Entity(tableName = "tasks")
+@Entity(tableName = "tasks", primaryKeys = ["id", "localUserId"])
 data class TaskEntity(
-    @PrimaryKey val id: String,
+    val id: String,
     val localUserId: String,
     val title: String,
     val description: String,
@@ -91,9 +91,9 @@ fun Task.toEntity(uid: String) = TaskEntity(
     groupId = groupId, priority = priority, completed = completed, ownerId = ownerId
 )
 
-@Entity(tableName = "study_sessions")
+@Entity(tableName = "study_sessions", primaryKeys = ["id", "localUserId"])
 data class StudySessionEntity(
-    @PrimaryKey val id: String,
+    val id: String,
     val localUserId: String,
     val title: String,
     val description: String,
@@ -117,9 +117,9 @@ fun StudySession.toEntity(uid: String) = StudySessionEntity(
     attendeeIds = attendeeIds, ownerId = ownerId
 )
 
-@Entity(tableName = "chat_messages")
+@Entity(tableName = "chat_messages", primaryKeys = ["id", "localUserId"])
 data class ChatMessageEntity(
-    @PrimaryKey val id: String,
+    val id: String,
     val localUserId: String,
     val groupId: String,
     val senderId: String,

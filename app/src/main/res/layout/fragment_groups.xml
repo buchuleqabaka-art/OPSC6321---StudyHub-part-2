@@ -53,6 +53,8 @@
         app:backgroundTint="@color/lilac_primary_dark"
         app:cornerRadius="24dp" />
 
+    <com.google.android.material.button.MaterialButton android:id="@+id/button_join_group" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/planning_join" />
+
     <TextView
         android:id="@+id/text_empty_groups"
         android:layout_width="match_parent"

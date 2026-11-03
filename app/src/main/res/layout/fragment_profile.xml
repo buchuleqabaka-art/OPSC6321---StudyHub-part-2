@@ -50,6 +50,7 @@
                 <TextView android:id="@+id/text_profile_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/profile_email_placeholder" android:textColor="@color/ink_muted" />
                 <TextView android:id="@+id/text_profile_course" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="@string/profile_default_course_year" android:textColor="@color/ink" />
                 <TextView android:id="@+id/text_profile_stats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/profile_stats_zero" android:textColor="@color/ink_muted" android:textSize="13sp" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/planning_points_note" android:textColor="@color/ink_muted" android:textSize="12sp" android:padding="8dp" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_edit_profile"
                     style="@style/Widget.Material3.Button.OutlinedButton"

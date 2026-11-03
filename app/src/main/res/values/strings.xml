@@ -255,4 +255,29 @@
     <string name="chat_send_failed">Message could not be sent. Your text is kept—tap Send to retry.</string>
     <string name="chat_retry_send">Retry sending message</string>
     <string name="chat_load_failed_retry">Could not refresh messages. Tap to retry.</string>
+
+    <string name="planning_group">Study group</string>
+    <string name="planning_personal">Personal (only me)</string>
+    <string name="planning_member">Member: %1$s</string>
+    <string name="planning_start">Start time</string>
+    <string name="planning_end">End time</string>
+    <string name="planning_start_at">Start: %1$s</string>
+    <string name="planning_end_at">End: %1$s</string>
+    <string name="planning_invalid_session">Enter a title (up to 160 characters), a future start, and an end time after the start on the same day.</string>
+    <string name="planning_invalid_task">Enter a title up to 160 characters and a future due date.</string>
+    <string name="planning_saved_local">Task saved on this device. Waiting to sync.</string>
+    <string name="planning_save_failed">Could not save. Check your connection and group access, then try again.</string>
+    <string name="planning_load_failed">Could not refresh planning data. Check your connection and deployed Firebase rules, then reopen the app.</string>
+    <string name="planning_tasks">Group tasks</string>
+    <string name="planning_sessions">Group sessions</string>
+    <string name="planning_invite_code">Share this group code to invite a member:\n%1$s</string>
+    <string name="planning_group_code">Group code</string>
+    <string name="planning_join">Join a group</string>
+    <string name="planning_joined">Joined the group.</string>
+    <string name="planning_task_reminder">Task due soon</string>
+    <string name="planning_session_reminder">Study session starts soon</string>
+    <string name="planning_reminder_body">%1$s — within the next hour.</string>
+    <string name="planning_points_note">10 points per currently completed task assigned to you. Reopening or deleting a task removes its points.</string>
+    <string name="planning_scope">Group: %1$s</string>
+    <string name="planning_all">All my planning</string>
 </resources>

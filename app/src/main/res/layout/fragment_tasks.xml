@@ -9,6 +9,7 @@
     android:paddingTop="20dp"
     android:paddingEnd="20dp">
 
+    <TextView android:id="@+id/planning_scope" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/planning_all" android:textColor="@color/ink_muted" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/my_tasks" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/tasks_subtitle" android:textColor="@color/ink_muted" android:textSize="14sp" />
 

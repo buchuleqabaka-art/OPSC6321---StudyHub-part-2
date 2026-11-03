@@ -254,4 +254,29 @@
     <string name="chat_send_failed">Die boodskap kon nie gestuur word nie. Jou teks is behou—tik Stuur om weer te probeer.</string>
     <string name="chat_retry_send">Probeer die boodskap weer stuur</string>
     <string name="chat_load_failed_retry">Kon nie boodskappe verfris nie. Tik om weer te probeer.</string>
+
+    <string name="planning_group">Studiegroep</string>
+    <string name="planning_personal">Persoonlik (net ek)</string>
+    <string name="planning_member">Lid: %1$s</string>
+    <string name="planning_start">Begintyd</string>
+    <string name="planning_end">Eindtyd</string>
+    <string name="planning_start_at">Begin: %1$s</string>
+    <string name="planning_end_at">Einde: %1$s</string>
+    <string name="planning_invalid_session">Voer ’n titel (tot 160 karakters), ’n toekomstige begintyd en ’n latere eindtyd op dieselfde dag in.</string>
+    <string name="planning_invalid_task">Voer ’n titel van tot 160 karakters en ’n toekomstige sperdatum in.</string>
+    <string name="planning_saved_local">Taak op hierdie toestel gestoor. Wag vir sinkronisering.</string>
+    <string name="planning_save_failed">Kon nie stoor nie. Kontroleer jou verbinding en groeptoegang en probeer weer.</string>
+    <string name="planning_load_failed">Kon nie beplanningsdata verfris nie. Kontroleer die verbinding en Firebase-reëls en heropen die toepassing.</string>
+    <string name="planning_tasks">Groeptake</string>
+    <string name="planning_sessions">Groepsessies</string>
+    <string name="planning_invite_code">Deel hierdie groepkode om ’n lid te nooi:\n%1$s</string>
+    <string name="planning_group_code">Groepkode</string>
+    <string name="planning_join">Sluit by ’n groep aan</string>
+    <string name="planning_joined">By die groep aangesluit.</string>
+    <string name="planning_task_reminder">Taak binnekort verskuldig</string>
+    <string name="planning_session_reminder">Studiesessie begin binnekort</string>
+    <string name="planning_reminder_body">%1$s — binne die volgende uur.</string>
+    <string name="planning_points_note">10 punte per voltooide taak wat aan jou toegewys is. Heropening of uitvee verwyder die punte.</string>
+    <string name="planning_scope">Groep: %1$s</string>
+    <string name="planning_all">Al my beplanning</string>
 </resources>

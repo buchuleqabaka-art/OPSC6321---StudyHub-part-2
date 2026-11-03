@@ -18,6 +18,7 @@ import com.studyhub.app.notifications.PushRegistration
 import com.studyhub.app.ui.components.DialogHelper
 import com.studyhub.app.ui.navigation.Routes
 import com.studyhub.app.util.AppLanguages
+import com.studyhub.app.util.PlanningPolicy
 import com.studyhub.app.viewmodel.MainUiState
 import kotlinx.coroutines.launch
 
@@ -172,12 +173,12 @@ class ProfileFragment : HubFragment(R.layout.fragment_profile) {
         val year = user?.yearOfStudy?.ifBlank { getString(R.string.default_year) }
             ?: getString(R.string.default_year)
         binding.textProfileCourse.text = getString(R.string.profile_course_year_format, course, year)
-        val completedCount = user?.tasksCompleted ?: state.completedTasks.size
+        val completedCount = PlanningPolicy.completedCount(state.tasks, user?.uid.orEmpty())
         val completed = resources.getQuantityString(R.plurals.tasks_completed_count, completedCount, completedCount)
         val groups = resources.getQuantityString(R.plurals.groups_count, state.groups.size, state.groups.size)
         binding.textProfileStats.text = getString(
             R.string.profile_stats_format,
-            user?.points ?: 0,
+            PlanningPolicy.points(state.tasks, user?.uid.orEmpty()),
             completed,
             groups
         )

@@ -35,6 +35,7 @@ data class MainUiState(
     val chatComposers: Map<String, ChatComposer> = emptyMap(),
     val chatLoadFailed: Boolean = false,
     val quote: QuoteDto? = null,
+    val planningGroupId: String? = null,
     val activeGroupId: String? = null,
     val pendingTaskSyncCount: Int = 0,
     val loading: Boolean = true,
@@ -68,7 +69,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             chatSendJobs.forEach { it.cancel() }
             chatSendJobs.clear()
             _state.update {
-                it.copy(activeGroupId = null, messages = emptyList(), chatComposers = emptyMap(), chatLoadFailed = false)
+                it.copy(planningGroupId = null, activeGroupId = null, messages = emptyList(), chatComposers = emptyMap(), chatLoadFailed = false)
             }
         }
     }
@@ -90,10 +91,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         viewModelScope.launch {
-            repo.observeMyGroups().collect { groups -> _state.update { it.copy(groups = groups) } }
+            repo.observeMyGroups().catch { _state.update { it.copy(error = getApplication<Application>().getString(R.string.planning_load_failed)) }; emit(emptyList()) }.collect { groups -> _state.update { it.copy(groups = groups) } }
         }
         viewModelScope.launch {
-            repo.observeTasks().collect { tasks -> _state.update { it.copy(tasks = tasks) } }
+            repo.observeTasks().catch { _state.update { it.copy(error = getApplication<Application>().getString(R.string.planning_load_failed)) }; emit(emptyList()) }.collect { tasks -> _state.update { it.copy(tasks = tasks) } }
         }
         viewModelScope.launch {
             repo.observePendingTaskCount().collect { count ->
@@ -111,7 +112,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             settingsStore.language.collect { language -> loadQuote(language) }
         }
         viewModelScope.launch {
-            repo.observeSessions().collect { s -> _state.update { it.copy(sessions = s) } }
+            repo.observeSessions().catch { _state.update { it.copy(error = getApplication<Application>().getString(R.string.planning_load_failed)) }; emit(emptyList()) }.collect { s -> _state.update { it.copy(sessions = s) } }
         }
     }
 
@@ -186,13 +187,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun createGroup(name: String, subject: String, description: String) = viewModelScope.launch {
+    fun selectPlanningGroup(groupId: String?) {
+        _state.update { it.copy(planningGroupId = groupId) }
+    }
+
+    fun joinGroup(groupId: String, onResult: (Boolean) -> Unit) = viewModelScope.launch {
+        val result = repo.joinGroup(groupId.trim())
+        onResult(result.isSuccess)
+    }
+
+    fun createGroup(name: String, subject: String, description: String, onResult: (Boolean) -> Unit = {}) = viewModelScope.launch {
         repo.createGroup(name, subject, description)
+            .also { onResult(it.isSuccess) }
             .onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
 
-    fun addTask(task: Task) = viewModelScope.launch {
+    fun addTask(task: Task, onResult: (Boolean) -> Unit = {}) = viewModelScope.launch {
         repo.addTask(task)
+            .also { onResult(it.isSuccess) }
             .onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
 
@@ -206,13 +218,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ).onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
     fun toggleTask(task: Task) = viewModelScope.launch {
-        repo.setTaskCompleted(task)
+        repo.setTaskCompleted(task).onFailure { _state.update { state -> state.copy(error = getApplication<Application>().getString(R.string.planning_save_failed)) } }
     }
 
     fun deleteTask(taskId: String) = viewModelScope.launch { repo.deleteTask(taskId) }
 
-    fun addSession(session: StudySession) = viewModelScope.launch {
-        repo.addSession(session).onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
+    fun addSession(session: StudySession, onResult: (Boolean) -> Unit = {}) = viewModelScope.launch {
+        repo.addSession(session).also { onResult(it.isSuccess) }.onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
 
     fun toggleAttendance(sessionId: String) = viewModelScope.launch {

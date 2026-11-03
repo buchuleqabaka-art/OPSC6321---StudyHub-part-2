@@ -17,12 +17,12 @@ import com.studyhub.app.R
 object StudyHubNotifications {
     private const val CHANNEL_ID = "studyhub_updates"
 
-    fun show(context: Context, title: String, body: String, notificationId: Int) {
+    fun show(context: Context, title: String, body: String, notificationId: Int): Boolean {
         ensureChannel(context)
-        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) return
+        ) return false
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -42,7 +42,10 @@ object StudyHubNotifications {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
-        NotificationManagerCompat.from(context).notify(notificationId, notification)
+        return try {
+            NotificationManagerCompat.from(context).notify(notificationId, notification)
+            true
+        } catch (_: SecurityException) { false }
     }
 
     private fun ensureChannel(context: Context) {

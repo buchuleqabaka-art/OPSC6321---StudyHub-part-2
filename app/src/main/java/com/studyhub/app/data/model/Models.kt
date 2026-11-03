@@ -1,6 +1,7 @@
 package com.studyhub.app.data.model
 
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.Exclude
 
 // Every model has a no-arg default so Firestore's toObject() can build it
 
@@ -28,6 +29,7 @@ data class StudyGroup(
     val iconKey: String = "database",
     val createdAt: Long = System.currentTimeMillis()
 ) {
+    @get:Exclude
     val memberCount: Int get() = memberIds.size
 }
 
@@ -46,6 +48,7 @@ data class Task(
     val ownerId: String = ""
 ) {
     // Falls back to MEDIUM if Firestore ever holds an unexpected value
+    @get:Exclude
     val priorityEnum: Priority
         get() = runCatching { Priority.valueOf(priority.uppercase()) }.getOrDefault(Priority.MEDIUM)
 }
@@ -61,6 +64,7 @@ data class StudySession(
     val attendeeIds: List<String> = emptyList(),
     val ownerId: String = ""
 ) {
+    @get:Exclude
     val goingCount: Int get() = attendeeIds.size
 }
 

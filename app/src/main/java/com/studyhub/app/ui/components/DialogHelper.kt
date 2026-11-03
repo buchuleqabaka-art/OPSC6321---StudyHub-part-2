@@ -2,6 +2,16 @@ package com.studyhub.app.ui.components
 
 import android.content.Context
 import android.widget.DatePicker
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+import android.view.View
+import android.app.TimePickerDialog
+import android.text.format.DateFormat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.studyhub.app.data.model.StudyGroup
+import com.studyhub.app.util.PlanningPolicy
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.studyhub.app.R
@@ -46,8 +56,39 @@ object DialogHelper {
         dialog.show()
     }
 
-    fun createTask(context: Context, onCreate: (Task) -> Unit) {
+    fun createTask(context: Context, groups: List<StudyGroup> = emptyList(), selectedGroupId: String? = null, currentUserName: String = "", onCreate: (Task) -> Unit) {
         val binding = DialogCreateTaskBinding.inflate(android.view.LayoutInflater.from(context))
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        val groupOptions = listOf<StudyGroup?>(null) + groups
+        binding.taskGroup.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item,
+            groupOptions.map { it?.name ?: context.getString(R.string.planning_personal) })
+        var memberIds = listOf(uid)
+        var memberLabels = listOf(context.getString(R.string.you))
+        binding.taskGroup.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val group = groupOptions[position]
+                memberIds = group?.memberIds?.distinct().orEmpty().ifEmpty { listOf(uid) }
+                memberLabels = memberIds.map { if (it == uid) context.getString(R.string.you) else context.getString(R.string.planning_member, it) }
+                binding.taskAssignee.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, memberLabels)
+                group?.let {
+                    FirebaseFirestore.getInstance().collection("groups").document(it.id).collection("members").get()
+                        .addOnSuccessListener { result ->
+                            if (groupOptions[binding.taskGroup.selectedItemPosition]?.id != group.id) return@addOnSuccessListener
+                            val previous = binding.taskAssignee.selectedItemPosition.coerceAtLeast(0)
+                            val names = result.documents.associate { doc -> doc.id to doc.getString("name").orEmpty() }
+                            memberLabels = memberIds.map { member ->
+                                if (member == uid) context.getString(R.string.you)
+                                else names[member]?.takeIf { name -> name.isNotBlank() }?.let { name -> "$name (${member.takeLast(6)})" }
+                                    ?: context.getString(R.string.planning_member, member)
+                            }
+                            binding.taskAssignee.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, memberLabels)
+                            binding.taskAssignee.setSelection(previous.coerceAtMost(memberIds.lastIndex))
+                        }
+                }
+            }
+        }
+        binding.taskGroup.setSelection(groupOptions.indexOfFirst { it?.id == selectedGroupId }.coerceAtLeast(0))
         var dueDate = tomorrowAt(9)
         fun renderDueDate() {
             binding.buttonPickTaskDate.text = context.getString(
@@ -78,6 +119,10 @@ object DialogHelper {
                     binding.inputTaskTitle.error = context.getString(R.string.error_task_title)
                     return@setOnClickListener
                 }
+                if (!PlanningPolicy.validTitle(title) || dueDate <= System.currentTimeMillis()) {
+                    binding.inputTaskTitle.error = context.getString(R.string.planning_invalid_task)
+                    return@setOnClickListener
+                }
                 val priority = when (binding.taskPriorityGroup.checkedRadioButtonId) {
                     R.id.priority_high -> "HIGH"
                     R.id.priority_low -> "LOW"
@@ -86,8 +131,9 @@ object DialogHelper {
                 onCreate(
                     Task(
                         title = title,
-                        assignedToName = binding.inputTaskAssignee.text?.toString()?.trim().orEmpty()
-                            .ifBlank { context.getString(R.string.you) },
+                        groupId = groupOptions[binding.taskGroup.selectedItemPosition]?.id.orEmpty(),
+                        assignedToId = memberIds[binding.taskAssignee.selectedItemPosition.coerceAtLeast(0)],
+                        assignedToName = if (memberIds[binding.taskAssignee.selectedItemPosition.coerceAtLeast(0)] == uid) currentUserName else memberLabels[binding.taskAssignee.selectedItemPosition.coerceAtLeast(0)],
                         priority = priority,
                         dueDate = dueDate
                     )
@@ -98,10 +144,17 @@ object DialogHelper {
         dialog.show()
     }
 
-    fun createSession(context: Context, onCreate: (StudySession) -> Unit) {
+    fun createSession(context: Context, groups: List<StudyGroup> = emptyList(), selectedGroupId: String? = null, onCreate: (StudySession) -> Unit) {
         val binding = DialogCreateSessionBinding.inflate(android.view.LayoutInflater.from(context))
+        val groupOptions = listOf<StudyGroup?>(null) + groups
+        binding.sessionGroup.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item,
+            groupOptions.map { it?.name ?: context.getString(R.string.planning_personal) })
+        binding.sessionGroup.setSelection(groupOptions.indexOfFirst { it?.id == selectedGroupId }.coerceAtLeast(0))
         var startTime = tomorrowAt(14)
+        var endTime = startTime + 2 * 60 * 60 * 1000L
         fun renderSessionDate() {
+            binding.buttonStartTime.text = context.getString(R.string.planning_start_at, DateUtils.formatTime(context, startTime))
+            binding.buttonEndTime.text = context.getString(R.string.planning_end_at, DateUtils.formatTime(context, endTime))
             binding.buttonPickSessionDate.text = context.getString(
                 R.string.session_date_time_format,
                 DateUtils.formatDate(context, startTime),
@@ -111,10 +164,26 @@ object DialogHelper {
         renderSessionDate()
         binding.buttonPickSessionDate.setOnClickListener {
             showDatePicker(context, startTime) { picked ->
-                startTime = atHour(picked, 14)
+                val old = Calendar.getInstance().apply { timeInMillis = startTime }
+                val oldEnd = Calendar.getInstance().apply { timeInMillis = endTime }
+                startTime = Calendar.getInstance().apply { timeInMillis = picked; set(Calendar.HOUR_OF_DAY, old.get(Calendar.HOUR_OF_DAY)); set(Calendar.MINUTE, old.get(Calendar.MINUTE)) }.timeInMillis
+                endTime = Calendar.getInstance().apply { timeInMillis = picked; set(Calendar.HOUR_OF_DAY, oldEnd.get(Calendar.HOUR_OF_DAY)); set(Calendar.MINUTE, oldEnd.get(Calendar.MINUTE)) }.timeInMillis
                 renderSessionDate()
             }
         }
+        fun pickTime(initial: Long, onPicked: (Long) -> Unit) {
+            val time = Calendar.getInstance().apply { timeInMillis = initial }
+            TimePickerDialog(context, { _, hour, minute ->
+                time.set(Calendar.HOUR_OF_DAY, hour)
+                time.set(Calendar.MINUTE, minute)
+                time.set(Calendar.SECOND, 0)
+                time.set(Calendar.MILLISECOND, 0)
+                onPicked(time.timeInMillis)
+                renderSessionDate()
+            }, time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), DateFormat.is24HourFormat(context)).show()
+        }
+        binding.buttonStartTime.setOnClickListener { pickTime(startTime) { startTime = it } }
+        binding.buttonEndTime.setOnClickListener { pickTime(endTime) { endTime = it } }
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.schedule_session_title)
             .setView(binding.root)
@@ -131,13 +200,18 @@ object DialogHelper {
                     binding.inputSessionTitle.error = context.getString(R.string.error_session_title)
                     return@setOnClickListener
                 }
+                if (!PlanningPolicy.validSession(title, startTime, endTime, System.currentTimeMillis())) {
+                    binding.sessionError.visibility = View.VISIBLE
+                    return@setOnClickListener
+                }
                 onCreate(
                     StudySession(
+                        groupId = groupOptions[binding.sessionGroup.selectedItemPosition]?.id.orEmpty(),
                         title = title,
                         description = binding.inputSessionDescription.text?.toString()?.trim().orEmpty(),
                         location = binding.inputSessionLocation.text?.toString()?.trim().orEmpty(),
                         startTime = startTime,
-                        endTime = startTime + 2 * 60 * 60 * 1000L
+                        endTime = endTime
                     )
                 )
                 dialog.dismiss()

@@ -18,19 +18,20 @@ class SessionsFragment : HubFragment(R.layout.fragment_sessions) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSessionsBinding.bind(view)
         binding.buttonScheduleSession.setOnClickListener {
-            DialogHelper.createSession(requireContext()) { session ->
-                mainViewModel.addSession(session)
-                Snackbar.make(binding.root, R.string.session_scheduled, Snackbar.LENGTH_SHORT).show()
+            DialogHelper.createSession(requireContext(), mainViewModel.state.value.groups, mainViewModel.state.value.planningGroupId) { session ->
+                mainViewModel.addSession(session) { ok -> planningFeedback(binding.root, ok, R.string.session_scheduled) }
             }
         }
         observe(mainViewModel.state) { state ->
+            binding.planningScope.text = state.groups.firstOrNull { it.id == state.planningGroupId }
+                ?.let { getString(R.string.planning_scope, it.name) } ?: getString(R.string.planning_all)
             currentState = state
             renderSessions(binding)
         }
     }
 
     private fun renderSessions(binding: FragmentSessionsBinding) {
-        val upcoming = currentState.sessions.filter { it.startTime >= System.currentTimeMillis() }
+        val upcoming = currentState.sessions.filter { it.startTime >= System.currentTimeMillis() && (currentState.planningGroupId == null || it.groupId == currentState.planningGroupId) }
         binding.sessionsContainer.removeAllViews()
         binding.textEmptySessions.visibility = if (upcoming.isEmpty()) View.VISIBLE else View.GONE
         upcoming.forEach { session ->

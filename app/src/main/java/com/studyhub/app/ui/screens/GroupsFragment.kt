@@ -2,6 +2,8 @@ package com.studyhub.app.ui.screens
 
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.snackbar.Snackbar
 import com.studyhub.app.R
@@ -30,9 +32,16 @@ class GroupsFragment : HubFragment(R.layout.fragment_groups) {
         }
         binding.buttonCreateGroup.setOnClickListener {
             DialogHelper.createGroup(requireContext()) { name, subject, description ->
-                mainViewModel.createGroup(name, subject, description)
-                Snackbar.make(binding.root, R.string.group_created, Snackbar.LENGTH_SHORT).show()
+                mainViewModel.createGroup(name, subject, description) { ok -> planningFeedback(binding.root, ok, R.string.group_created) }
             }
+        }
+        binding.buttonJoinGroup.setOnClickListener {
+            val input = EditText(requireContext()).apply { hint = getString(R.string.planning_group_code) }
+            MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.planning_join).setView(input)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.planning_join) { _, _ ->
+                    mainViewModel.joinGroup(input.text.toString()) { ok -> planningFeedback(binding.root, ok, R.string.planning_joined) }
+                }.show()
         }
         observe(mainViewModel.state) { state ->
             currentGroups = state.groups
@@ -71,8 +80,8 @@ class GroupsFragment : HubFragment(R.layout.fragment_groups) {
             )
             row.groupMembers.text = getString(R.string.group_members_format, memberCount, getString(R.string.group_member_hint))
             row.root.setOnClickListener {
-                mainViewModel.openGroupChat(group.id)
-                navigator.navigate(Routes.CHATS)
+                mainViewModel.selectPlanningGroup(group.id)
+                navigator.navigate(Routes.GROUP_DETAIL)
             }
             binding.groupsContainer.addView(row.root)
         }

@@ -254,4 +254,29 @@
     <string name="chat_send_failed">Umlayezo awuthunyelwanga. Umbhalo wakho ugciniwe—thinta okuthi Thumela ukuze uzame futhi.</string>
     <string name="chat_retry_send">Zama ukuthumela umlayezo futhi</string>
     <string name="chat_load_failed_retry">Ayikwazanga ukuvuselela imilayezo. Thinta ukuze uzame futhi.</string>
+
+    <string name="planning_group">Iqembu lokufunda</string>
+    <string name="planning_personal">Okwami kuphela</string>
+    <string name="planning_member">Ilungu: %1$s</string>
+    <string name="planning_start">Isikhathi sokuqala</string>
+    <string name="planning_end">Isikhathi sokuphela</string>
+    <string name="planning_start_at">Qala: %1$s</string>
+    <string name="planning_end_at">Phela: %1$s</string>
+    <string name="planning_invalid_session">Faka isihloko (izinhlamvu ezingafika ku-160), isikhathi sokuqala esizayo nesokuphela esingemva kwaso ngosuku olufanayo.</string>
+    <string name="planning_invalid_task">Faka isihloko esingafika ezinhlamvini ezingu-160 nosuku lokuqeda oluzayo.</string>
+    <string name="planning_saved_local">Umsebenzi ugcinwe kule divayisi. Ulinde ukuvumelanisa.</string>
+    <string name="planning_save_failed">Ayikwazanga ukugcina. Hlola uxhumano nokufinyelela eqenjini bese uzama futhi.</string>
+    <string name="planning_load_failed">Ayikwazanga ukuvuselela idatha yokuhlela. Hlola uxhumano nemithetho ye-Firebase bese uvula uhlelo futhi.</string>
+    <string name="planning_tasks">Imisebenzi yeqembu</string>
+    <string name="planning_sessions">Izikhathi zeqembu</string>
+    <string name="planning_invite_code">Yabelana ngale khodi yeqembu ukuze umeme ilungu:\n%1$s</string>
+    <string name="planning_group_code">Ikhodi yeqembu</string>
+    <string name="planning_join">Joyina iqembu</string>
+    <string name="planning_joined">Ujoyine iqembu.</string>
+    <string name="planning_task_reminder">Umsebenzi uzophelelwa isikhathi maduze</string>
+    <string name="planning_session_reminder">Isikhathi sokufunda sizoqala maduze</string>
+    <string name="planning_reminder_body">%1$s — phakathi kwehora elilandelayo.</string>
+    <string name="planning_points_note">Amaphuzu ayi-10 ngomsebenzi oqediwe owabelwe wena. Ukuvula futhi noma ukususa umsebenzi kususa amaphuzu awo.</string>
+    <string name="planning_scope">Iqembu: %1$s</string>
+    <string name="planning_all">Konke ukuhlela kwami</string>
 </resources>
