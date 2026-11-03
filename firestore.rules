@@ -78,6 +78,14 @@ service cloud.firestore {
       allow update: if signedIn() && validMembershipChange();
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
 
+      match /members/{memberId} {
+        allow read: if isGroupMember(groupId);
+        allow create, update: if isGroupMember(groupId) && request.auth.uid == memberId
+          && request.resource.data.keys().hasOnly(['name'])
+          && request.resource.data.name is string && request.resource.data.name.size() <= 80;
+        allow delete: if signedIn() && request.auth.uid == memberId;
+      }
+
       match /messages/{messageId} {
         allow read: if isGroupMember(groupId);
         allow create: if isGroupMember(groupId)
@@ -96,41 +104,60 @@ service cloud.firestore {
       }
     }
 
+    function canReadPlanning(data) {
+      return signedIn() && (data.ownerId == request.auth.uid
+        || (data.get('groupId', '') != '' && isGroupMember(data.groupId)));
+    }
+
+    function validTask(data) {
+      return data.keys().hasOnly(['id', 'title', 'description', 'dueDate', 'assignedToId',
+          'assignedToName', 'groupId', 'priority', 'completed', 'ownerId'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 160
+        && data.description is string && data.description.size() <= 4000
+        && data.dueDate is int && data.dueDate > 0
+        && data.assignedToId is string && data.assignedToName is string
+        && data.assignedToName.size() <= 200
+        && data.groupId is string
+        && data.priority in ['HIGH', 'MEDIUM', 'LOW'] && data.completed is bool;
+    }
+
     match /tasks/{taskId} {
-      allow read: if signedIn() && resource.data.ownerId == request.auth.uid;
-      allow create: if signedIn()
-        && request.resource.data.ownerId == request.auth.uid
-        && request.resource.data.keys().hasOnly([
-          'id', 'title', 'description', 'dueDate', 'assignedToId', 'assignedToName',
-          'groupId', 'priority', 'completed', 'ownerId'
-        ])
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0
-        && request.resource.data.title.size() <= 160
-        && request.resource.data.description is string
-        && request.resource.data.description.size() <= 4000
-        && request.resource.data.priority in ['HIGH', 'MEDIUM', 'LOW']
+      allow read: if canReadPlanning(resource.data);
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid
+        && validTask(request.resource.data)
+        && request.resource.data.completed == false
+        && request.resource.data.dueDate > request.time.toMillis()
+        && (request.resource.data.groupId == ''
+          ? request.resource.data.assignedToId == request.auth.uid
+          : isGroupMember(request.resource.data.groupId)
+            && request.resource.data.assignedToId in get(/databases/$(database)/documents/groups/$(request.resource.data.groupId)).data.memberIds);
+      // Completion is a field update: never replace another member's ownership or assignment.
+      allow update: if canReadPlanning(resource.data)
+        && (resource.data.ownerId == request.auth.uid || resource.data.assignedToId == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed'])
         && request.resource.data.completed is bool;
-      allow update: if signedIn()
-        && resource.data.ownerId == request.auth.uid
-        && request.resource.data.ownerId == resource.data.ownerId
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'title', 'description', 'dueDate', 'assignedToId', 'assignedToName',
-          'groupId', 'priority', 'completed'
-        ]);
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
 
+    function validSession(data) {
+      return data.keys().hasOnly(['id', 'title', 'description', 'groupId', 'startTime',
+          'endTime', 'location', 'attendeeIds', 'ownerId'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 160
+        && data.description is string && data.description.size() <= 4000
+        && data.location is string && data.location.size() <= 300
+        && data.groupId is string
+        && data.startTime is int && data.endTime is int && data.endTime > data.startTime;
+    }
+
     match /sessions/{sessionId} {
-      allow read: if signedIn();
-      allow create: if signedIn()
-        && request.resource.data.ownerId == request.auth.uid
+      allow read: if canReadPlanning(resource.data);
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid
+        && validSession(request.resource.data)
+        && request.resource.data.startTime > request.time.toMillis()
+        && (request.resource.data.groupId == '' || isGroupMember(request.resource.data.groupId))
         && request.resource.data.attendeeIds is list
-        && request.auth.uid in request.resource.data.attendeeIds
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0
-        && request.resource.data.title.size() <= 160;
-      allow update: if signedIn()
+        && request.resource.data.attendeeIds == [request.auth.uid];
+      allow update: if canReadPlanning(resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendeeIds'])
         && request.resource.data.attendeeIds is list
         && (

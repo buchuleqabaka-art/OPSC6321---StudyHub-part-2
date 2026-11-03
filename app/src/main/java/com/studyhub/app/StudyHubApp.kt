@@ -10,6 +10,7 @@ import com.google.firebase.firestore.PersistentCacheSettings
 class StudyHubApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        com.studyhub.app.notifications.PlanningReminderWorker.schedule(this)
         FirebaseApp.initializeApp(this)
         val settings = FirebaseFirestoreSettings.Builder()
             .setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())

@@ -6,6 +6,7 @@ import com.studyhub.app.data.model.Task
 /** Stable queue payload encoding shared by the repository and WorkManager worker. */
 object TaskSyncCodec {
     const val UPSERT = "UPSERT"
+    const val COMPLETE = "COMPLETE"
     const val DELETE = "DELETE"
 
     private val gson = Gson()

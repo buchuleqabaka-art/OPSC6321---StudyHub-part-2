@@ -38,6 +38,8 @@ class PendingTaskSyncWorker(
         val firestore = FirebaseFirestore.getInstance()
         return try {
             dao.getPendingTaskOperations(uid).forEach { operation ->
+                if (FirebaseAuth.getInstance().currentUser?.uid != uid) return Result.success()
+                if (!SettingsStore(applicationContext).offlineSync.first()) return Result.success()
                 when (operation.operation) {
                     TaskSyncCodec.UPSERT -> {
                         val task = TaskSyncCodec.decode(operation.payload)
@@ -46,6 +48,12 @@ class PendingTaskSyncWorker(
                             return Result.failure()
                         }
                         firestore.collection(TASKS).document(operation.taskId).set(task).await()
+                    }
+                    TaskSyncCodec.COMPLETE -> {
+                        val task = TaskSyncCodec.decode(operation.payload)
+                        require(task.id == operation.taskId)
+                        firestore.collection(TASKS).document(operation.taskId)
+                            .update("completed", task.completed).await()
                     }
                     TaskSyncCodec.DELETE -> {
                         firestore.collection(TASKS).document(operation.taskId).delete().await()

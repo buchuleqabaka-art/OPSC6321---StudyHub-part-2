@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
 import com.studyhub.app.data.local.PendingTaskOperationEntity
@@ -27,6 +28,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
@@ -36,6 +41,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import com.studyhub.app.util.PlanningPolicy
 
 /**
  * Everything that reads or writes Firestore. Uses Room as a local cache to
@@ -116,45 +122,61 @@ class StudyHubRepository(
 
     // --- Groups -------------------------------------------------------------
 
+    private fun snapshots(query: Query): Flow<QuerySnapshot> = callbackFlow {
+        val listener = query.addSnapshotListener(MetadataChanges.INCLUDE) { value, error ->
+            if (error != null) close(error) else if (value != null) trySend(value)
+        }
+        awaitClose { listener.remove() }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun observeMyGroups(): Flow<List<StudyGroup>> = authUidFlow().flatMapLatest { currentUid ->
-        localDao.observeAllGroups(currentUid)
-            .map { list -> list.map { it.toModel() } }
-            .onStart {
-                if (currentUid.isNotEmpty()) {
-                    firestore.collection(GROUPS)
-                        .whereArrayContains("memberIds", currentUid)
-                        .addSnapshotListener { snap, error ->
-                            if (error == null && snap != null) {
-                                val groups = snap.toObjects(StudyGroup::class.java)
-                                scope.launch { localDao.insertGroups(groups.map { it.toEntity(currentUid) }) }
-                            }
-                        }
+    fun observeMyGroups(): Flow<List<StudyGroup>> = authUidFlow().flatMapLatest { uid ->
+        if (uid.isBlank()) return@flatMapLatest flowOf(emptyList())
+        callbackFlow {
+            val cache = launch { localDao.observeAllGroups(uid).collect { send(it.map { row -> row.toModel() }) } }
+            val remote = launch {
+                snapshots(firestore.collection(GROUPS).whereArrayContains("memberIds", uid)).collect { snap ->
+                    val groups = snap.toObjects(StudyGroup::class.java).map { it.toEntity(uid) }
+                    if (!snap.metadata.isFromCache) localDao.replaceGroups(uid, groups)
+                    else localDao.insertGroups(groups)
                 }
             }
+            awaitClose { cache.cancel(); remote.cancel() }
+        }
+    }
+
+    private suspend fun publishMember(groupId: String, uid: String) {
+        val profile = firestore.collection(USERS).document(uid).get().await().toObject(UserProfile::class.java)
+        firestore.collection(GROUPS).document(groupId).collection("members").document(uid)
+            .set(mapOf("name" to (profile?.name ?: "").take(80))).await()
     }
 
     suspend fun createGroup(name: String, subject: String, description: String): Result<String> =
         runCatching {
             val currentUid = auth.currentUser?.uid.orEmpty()
+            require(currentUid.isNotBlank() && name.trim().length in 1..100)
             val group = StudyGroup(
                 name = name, subject = subject, description = description,
                 ownerId = currentUid, memberIds = listOf(currentUid)
             )
             val ref = firestore.collection(GROUPS).add(group).await()
             localDao.insertGroups(listOf(group.copy(id = ref.id).toEntity(currentUid)))
+            runCatching { publishMember(ref.id, currentUid) }
             ref.id
         }
 
     suspend fun joinGroup(groupId: String): Result<Unit> = runCatching {
         val currentUid = auth.currentUser?.uid.orEmpty()
+        require(currentUid.isNotBlank() && groupId.matches(Regex("[A-Za-z0-9_-]{1,200}")))
         val ref = firestore.collection(GROUPS).document(groupId)
         firestore.runTransaction { tx ->
             val snap = tx.get(ref)
+            require(snap.exists()) { "Group not found" }
             val members = (snap.get("memberIds") as? List<*>)?.filterIsInstance<String>().orEmpty()
             if (!members.contains(currentUid)) tx.update(ref, "memberIds", members + currentUid)
             null
         }.await()
+        runCatching { publishMember(groupId, currentUid) }
     }
 
     suspend fun leaveGroup(groupId: String): Result<Unit> = runCatching {
@@ -171,29 +193,33 @@ class StudyHubRepository(
     // --- Tasks --------------------------------------------------------------
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun observeTasks(): Flow<List<Task>> = authUidFlow().flatMapLatest { currentUid ->
-        localDao.observeAllTasks(currentUid)
-            .map { list -> list.map { it.toModel() } }
-            .onStart {
-                if (currentUid.isNotEmpty()) {
-                    TaskSyncScheduler.enqueue(appContext, currentUid)
-                    firestore.collection(TASKS)
-                        .whereEqualTo("ownerId", currentUid)
-                        .orderBy("dueDate", Query.Direction.ASCENDING)
-                        .addSnapshotListener { snap, error ->
-                            if (error == null && snap != null) {
-                                val remoteTasks = snap.toObjects(Task::class.java)
-                                scope.launch {
-                                    // Keep the local optimistic version visible until its queued
-                                    // write/delete has been acknowledged by Firestore.
-                                    val pendingIds = localDao.getPendingTaskIds(currentUid).toSet()
-                                    val safeTasks = remoteTasks.filterNot { it.id in pendingIds }
-                                    localDao.insertTasks(safeTasks.map { it.toEntity(currentUid) })
-                                }
-                            }
-                        }
+    private fun planningSnapshots(collection: String, uid: String): Flow<List<QuerySnapshot>> =
+        localDao.observeAllGroups(uid).map { rows -> rows.map { it.id }.sorted() }.distinctUntilChanged()
+            .flatMapLatest { ids ->
+                val queries = listOf(firestore.collection(collection).whereEqualTo("ownerId", uid)) +
+                    ids.map { firestore.collection(collection).whereEqualTo("groupId", it) }
+                combine(queries.map { snapshots(it) }) { it.toList() }
+            }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeTasks(): Flow<List<Task>> = authUidFlow().flatMapLatest { uid ->
+        if (uid.isBlank()) return@flatMapLatest flowOf(emptyList())
+        callbackFlow {
+            TaskSyncScheduler.enqueue(appContext, uid)
+            val cache = launch {
+                combine(localDao.observeAllTasks(uid), localDao.observeAllGroups(uid)) { tasks, groups ->
+                    val ids = groups.map { it.id }.toSet()
+                    tasks.filter { it.ownerId == uid || it.groupId in ids }.map { it.toModel() }
+                }.collect { send(it) }
+            }
+            val remote = launch {
+                planningSnapshots(TASKS, uid).collect { snapshots ->
+                    val tasks = snapshots.flatMap { it.toObjects(Task::class.java) }.distinctBy { it.id }
+                    localDao.reconcileTasks(uid, tasks.map { it.toEntity(uid) }, snapshots.none { it.metadata.isFromCache })
                 }
             }
+            awaitClose { cache.cancel(); remote.cancel() }
+        }
     }
 
     fun observePendingTaskCount(): Flow<Int> = authUidFlow().flatMapLatest { currentUid ->
@@ -207,7 +233,13 @@ class StudyHubRepository(
         val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
             ?: error("A signed-in account is required to create a task")
         val taskId = firestore.collection(TASKS).document().id
-        val localTask = task.copy(id = taskId, ownerId = currentUid)
+        require(PlanningPolicy.validTitle(task.title) && task.dueDate > System.currentTimeMillis())
+        if (task.groupId.isNotBlank()) {
+            val group = localDao.getGroups(currentUid).firstOrNull { it.id == task.groupId }
+            require(group != null && currentUid in group.memberIds && task.assignedToId in group.memberIds)
+        } else require(task.assignedToId.isBlank() || task.assignedToId == currentUid)
+        val localTask = task.copy(id = taskId, ownerId = currentUid,
+            assignedToId = task.assignedToId.ifBlank { currentUid })
         val operation = PendingTaskOperationEntity(
             operationId = UUID.randomUUID().toString(),
             localUserId = currentUid,
@@ -223,12 +255,13 @@ class StudyHubRepository(
     suspend fun setTaskCompleted(task: Task): Result<Unit> = runCatching {
         val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
             ?: error("A signed-in account is required to update a task")
-        val updated = task.copy(completed = !task.completed, ownerId = currentUid)
+        require(PlanningPolicy.canComplete(task, currentUid))
+        val updated = task.copy(completed = !task.completed)
         val operation = PendingTaskOperationEntity(
             operationId = UUID.randomUUID().toString(),
             localUserId = currentUid,
             taskId = updated.id,
-            operation = TaskSyncCodec.UPSERT,
+            operation = TaskSyncCodec.COMPLETE,
             payload = TaskSyncCodec.encode(updated)
         )
         localDao.saveTaskAndQueue(updated.toEntity(currentUid), operation)
@@ -238,6 +271,7 @@ class StudyHubRepository(
     suspend fun deleteTask(taskId: String): Result<Unit> = runCatching {
         val currentUid = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
             ?: error("A signed-in account is required to delete a task")
+        require(localDao.getTask(taskId, currentUid)?.ownerId == currentUid)
         val operation = PendingTaskOperationEntity(
             operationId = UUID.randomUUID().toString(),
             localUserId = currentUid,
@@ -252,23 +286,32 @@ class StudyHubRepository(
     // --- Study sessions -----------------------------------------------------
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun observeSessions(): Flow<List<StudySession>> = authUidFlow().flatMapLatest { currentUid ->
-        localDao.observeSessions(currentUid)
-            .map { list -> list.map { it.toModel() } }
-            .onStart {
-                firestore.collection(SESSIONS)
-                    .orderBy("startTime", Query.Direction.ASCENDING)
-                    .addSnapshotListener { snap, error ->
-                        if (error == null && snap != null) {
-                            val sessions = snap.toObjects(StudySession::class.java)
-                            scope.launch { localDao.insertSessions(sessions.map { it.toEntity(currentUid) }) }
-                        }
-                    }
+    fun observeSessions(): Flow<List<StudySession>> = authUidFlow().flatMapLatest { uid ->
+        if (uid.isBlank()) return@flatMapLatest flowOf(emptyList())
+        callbackFlow {
+            val cache = launch {
+                combine(localDao.observeSessions(uid), localDao.observeAllGroups(uid)) { sessions, groups ->
+                    val ids = groups.map { it.id }.toSet()
+                    sessions.filter { it.ownerId == uid || it.groupId in ids }.map { it.toModel() }
+                }.collect { send(it) }
             }
+            val remote = launch {
+                planningSnapshots(SESSIONS, uid).collect { snapshots ->
+                    val sessions = snapshots.flatMap { it.toObjects(StudySession::class.java) }
+                        .distinctBy { it.id }.map { it.toEntity(uid) }
+                    if (snapshots.none { it.metadata.isFromCache }) localDao.replaceSessions(uid, sessions)
+                    else localDao.insertSessions(sessions)
+                }
+            }
+            awaitClose { cache.cancel(); remote.cancel() }
+        }
     }
 
     suspend fun addSession(session: StudySession): Result<String> = runCatching {
         val currentUid = auth.currentUser?.uid.orEmpty()
+        require(currentUid.isNotBlank())
+        require(PlanningPolicy.validSession(session.title, session.startTime, session.endTime, System.currentTimeMillis()))
+        if (session.groupId.isNotBlank()) require(localDao.getGroups(currentUid).any { it.id == session.groupId && currentUid in it.memberIds })
         val ref = firestore.collection(SESSIONS)
             .add(session.copy(ownerId = currentUid, attendeeIds = listOf(currentUid))).await()
         localDao.insertSessions(listOf(session.copy(id = ref.id, ownerId = currentUid, attendeeIds = listOf(currentUid)).toEntity(currentUid)))

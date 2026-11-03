@@ -12,3 +12,14 @@ The AI was used as a development aid, not as a runtime feature. StudyHub does no
 - A local Gradle build/test could not be run in the development environment because Java/JDK was unavailable. The GitHub Actions workflow is configured to run the unit tests and debug build; confirm its result before submission.
 - Firebase Storage/Firestore rules and live sign-in, notification, API, and photo-upload flows still need verification against the configured Firebase project and real/emulated devices.
 
+
+## Additional ChatGPT/Codex assistance — November 2026
+
+ChatGPT/Codex assisted with chat-observer cleanup, send-state tests, group-linked
+planning, task assignment and permissions, session time selection, derived completion
+points, local reminders, account-qualified Room migration, emulator tests, and
+supporting documentation. Earlier hand-off limitations above describe the earlier
+stage; subsequent GitHub Actions build results are recorded in the pull requests.
+Live Firebase/API/SSO/FCM and physical-device validation must still be performed.
+The student must review and understand the changes and include an accurate AI-use
+write-up and citations in the submitted document as instructed by the lecturer.

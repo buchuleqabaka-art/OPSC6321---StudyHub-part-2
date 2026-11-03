@@ -17,6 +17,7 @@ class HomeFragment : HubFragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mainViewModel.selectPlanningGroup(null)
         _binding = FragmentHomeBinding.bind(view)
         binding.buttonHomeGroups.setOnClickListener { navigator.navigate(Routes.GROUPS, clearBackStack = true) }
         binding.buttonHomeTasks.setOnClickListener { navigator.navigate(Routes.TASKS, clearBackStack = true) }

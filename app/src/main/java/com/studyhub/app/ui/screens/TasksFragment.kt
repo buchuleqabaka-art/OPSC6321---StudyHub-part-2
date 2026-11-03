@@ -10,6 +10,7 @@ import com.studyhub.app.databinding.FragmentTasksBinding
 import com.studyhub.app.databinding.ItemTaskBinding
 import com.studyhub.app.ui.components.DialogHelper
 import com.studyhub.app.util.DateUtils
+import com.studyhub.app.util.PlanningPolicy
 
 class TasksFragment : HubFragment(R.layout.fragment_tasks) {
     private var allTasks: List<Task> = emptyList()
@@ -23,13 +24,14 @@ class TasksFragment : HubFragment(R.layout.fragment_tasks) {
             renderTasks(binding)
         }
         binding.buttonNewTask.setOnClickListener {
-            DialogHelper.createTask(requireContext()) { task ->
-                mainViewModel.addTask(task)
-                Snackbar.make(binding.root, R.string.task_added, Snackbar.LENGTH_SHORT).show()
+            DialogHelper.createTask(requireContext(), mainViewModel.state.value.groups, mainViewModel.state.value.planningGroupId, mainViewModel.state.value.profile?.name.orEmpty()) { task ->
+                mainViewModel.addTask(task) { ok -> planningFeedback(binding.root, ok, R.string.planning_saved_local) }
             }
         }
         observe(mainViewModel.state) { state ->
-            allTasks = state.tasks
+            binding.planningScope.text = state.groups.firstOrNull { it.id == state.planningGroupId }
+                ?.let { getString(R.string.planning_scope, it.name) } ?: getString(R.string.planning_all)
+            allTasks = state.tasks.filter { state.planningGroupId == null || it.groupId == state.planningGroupId }
             renderTasks(binding)
         }
     }
@@ -56,9 +58,12 @@ class TasksFragment : HubFragment(R.layout.fragment_tasks) {
             }
             row.taskMeta.text = getString(
                 R.string.task_priority_format,
-                task.assignedToName.ifBlank { getString(R.string.you) },
+                if (task.assignedToId == mainViewModel.state.value.profile?.uid) getString(R.string.you) else task.assignedToName.ifBlank { task.assignedToId },
                 priorityLabel
             )
+            val uid = mainViewModel.state.value.profile?.uid.orEmpty()
+            row.taskCompleted.isEnabled = PlanningPolicy.canComplete(task, uid)
+            row.taskDelete.visibility = if (task.ownerId == uid) View.VISIBLE else View.GONE
             row.taskCompleted.isChecked = task.completed
             row.taskCompleted.contentDescription = getString(
                 if (task.completed) R.string.mark_task_incomplete_format else R.string.mark_task_complete_format,

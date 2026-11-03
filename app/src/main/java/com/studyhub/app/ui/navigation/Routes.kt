@@ -5,6 +5,7 @@ object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val HOME = "home"
+    const val GROUP_DETAIL = "group_detail"
     const val GROUPS = "groups"
     const val TASKS = "tasks"
     const val CALENDAR = "calendar"

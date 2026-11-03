@@ -156,3 +156,43 @@ Alternatively, provide `FIREBASE_SERVICE_ACCOUNT` as a JSON environment variable
 ## AI use
 
 This repository was updated with AI coding assistance for resource localization, offline-sync and push-notification implementation, Firebase/API integration, tests, and documentation. 
+
+## Group planning update (3 November 2026)
+
+- Groups now open a workspace linking their tasks, sessions, and chat. Members can
+  join using the group code displayed in that workspace. Codes should only be
+  shared with intended members; this is code-based joining, not approval-based admission.
+- Task and session forms offer Personal or a joined group. Tasks select a real
+  member UID, with member-directory names where available and a UID fallback offline.
+  Private user profiles are not exposed to group members.
+- Group members can read shared planning. Only the task creator or assigned member
+  can change completion; only the creator can delete the task. Personal records
+  stay private. Tasks preserve the original creator when an assignee completes them.
+- Session date, start time, and end time can be selected. Sessions must start in
+  the future and end later on the same selected day. Invalid titles/times are rejected.
+- Profile statistics derive from distinct completed tasks assigned to the current
+  user (legacy unassigned personal tasks count for their owner): 10 points each.
+  Reopening/deleting a task removes its points. This is a current completion score,
+  not a lifetime reward balance; replaying a completion cannot award extra points.
+- A local WorkManager check runs approximately every 15 minutes and reminds the
+  signed-in user of assigned incomplete tasks / attended sessions within the next
+  hour. It respects notification permission/preferences and uses cached data offline.
+  Delivery can be delayed by Android battery restrictions. These local reminders
+  are separate from the existing FCM group-message push pipeline.
+- Room v4 adds account-qualified keys for shared groups/tasks/sessions/messages,
+  preserving v3 cached data and the pending task queue.
+
+### Required next-stage configuration
+
+Deploy the updated `firestore.rules` to your Firebase project before testing shared
+planning against live Firebase. This code update does not deploy cloud rules or
+verify API hosting, Google SSO, or live FCM delivery. Keep service-account keys and
+signing material out of Git. Member names become available after create/join;
+older memberships can display UID labels until their directory entries are populated.
+
+### Verification
+
+- JVM: `./gradlew :app:testDebugUnitTest :app:assembleDebug`
+- Firestore emulator (isolated demo project): `npm install` then `npm run test:rules`
+- Device migration test: `./gradlew :app:connectedDebugAndroidTest`
+- See `docs/group-planning-checks.md` for physical-device checks.
