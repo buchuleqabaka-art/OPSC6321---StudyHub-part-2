@@ -249,4 +249,9 @@
     <string name="notification_permission_denied">Izaziso zivaliwe kuzilungiselelo zedivayisi yakho.</string>
     <string name="notification_task_reminder_title">Isikhumbuzi somsebenzi</string>
     <string name="notification_task_reminder_body">Umsebenzi othi “%1$s” kufanele usheshe.</string>
+
+    <string name="chat_sending">Iyathumela… Ilinde ukuqinisekiswa. Uma ungaxhunyiwe, xhuma futhi ukuze iqede.</string>
+    <string name="chat_send_failed">Umlayezo awuthunyelwanga. Umbhalo wakho ugciniwe—thinta okuthi Thumela ukuze uzame futhi.</string>
+    <string name="chat_retry_send">Zama ukuthumela umlayezo futhi</string>
+    <string name="chat_load_failed_retry">Ayikwazanga ukuvuselela imilayezo. Thinta ukuze uzame futhi.</string>
 </resources>

@@ -249,4 +249,9 @@
     <string name="notification_permission_denied">Kennisgewings is in jou toestelinstellings afgeskakel.</string>
     <string name="notification_task_reminder_title">Taakherinnering</string>
     <string name="notification_task_reminder_body">“%1$s” moet binnekort ingedien word.</string>
+
+    <string name="chat_sending">Stuur tans… Wag vir bevestiging. As jy vanlyn is, koppel weer om klaar te maak.</string>
+    <string name="chat_send_failed">Die boodskap kon nie gestuur word nie. Jou teks is behou—tik Stuur om weer te probeer.</string>
+    <string name="chat_retry_send">Probeer die boodskap weer stuur</string>
+    <string name="chat_load_failed_retry">Kon nie boodskappe verfris nie. Tik om weer te probeer.</string>
 </resources>

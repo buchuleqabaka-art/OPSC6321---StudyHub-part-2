@@ -250,4 +250,9 @@
     <string name="notification_permission_denied">Notifications are disabled in your device settings.</string>
     <string name="notification_task_reminder_title">Task reminder</string>
     <string name="notification_task_reminder_body">“%1$s” is due soon.</string>
+
+    <string name="chat_sending">Sending… Waiting for confirmation. If offline, reconnect to finish.</string>
+    <string name="chat_send_failed">Message could not be sent. Your text is kept—tap Send to retry.</string>
+    <string name="chat_retry_send">Retry sending message</string>
+    <string name="chat_load_failed_retry">Could not refresh messages. Tap to retry.</string>
 </resources>
