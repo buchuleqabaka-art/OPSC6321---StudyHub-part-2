@@ -65,3 +65,10 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run test:quiz
       - run: npm run test:rules
+
+      - name: Build and smoke-test API container
+        run: |
+          docker build -t studyhub-api:ci .
+          docker run --rm -d --name studyhub-api-ci -p 8081:8080 -e GOOGLE_CLOUD_PROJECT=demo-studyhub studyhub-api:ci
+          trap 'docker stop studyhub-api-ci' EXIT
+          curl --fail --retry 12 --retry-connrefused --retry-delay 2 http://localhost:8081/
