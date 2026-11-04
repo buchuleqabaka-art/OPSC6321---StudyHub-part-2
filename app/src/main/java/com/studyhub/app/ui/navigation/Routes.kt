@@ -1,6 +1,7 @@
 package com.studyhub.app.ui.navigation
 
 object Routes {
+    const val QUIZ = "quiz"
     const val WELCOME = "welcome"
     const val LOGIN = "login"
     const val REGISTER = "register"

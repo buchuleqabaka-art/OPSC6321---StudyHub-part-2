@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-studyhub \"node --test tests/firestore/rules.test.cjs\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-studyhub \"node --test tests/firestore/rules.test.cjs\"",
+    "test:quiz": "node --test tests/quiz/*.test.cjs"
   },
   "engines": {
     "node": ">=18"

@@ -34,6 +34,22 @@ async function verifyFirebaseRequest(req, res) {
   }
 }
 
+// Persistent per-account quota works across server instances. Failed attempts count too.
+require('./server/quiz.cjs').registerQuiz(app, {
+  express, verify: verifyFirebaseRequest,
+  reserve: async (uid) => {
+    const day = new Date().toISOString().slice(0, 10);
+    const ref = db.collection('quizUsage').doc(uid);
+    return db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      const used = snap.exists && snap.get('day') === day ? Number(snap.get('count')) || 0 : 0;
+      if (used >= 10) return false;
+      tx.set(ref, { day, count: used + 1 });
+      return true;
+    });
+  }
+});
+
 // Health check - useful for the demo video and for uptime pings
 app.get('/', (req, res) => {
   res.json({ service: 'StudyHub API', status: 'ok', time: new Date().toISOString() });

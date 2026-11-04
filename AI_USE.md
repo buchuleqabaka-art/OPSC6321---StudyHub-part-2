@@ -23,3 +23,6 @@ stage; subsequent GitHub Actions build results are recorded in the pull requests
 Live Firebase/API/SSO/FCM and physical-device validation must still be performed.
 The student must review and understand the changes and include an accurate AI-use
 write-up and citations in the submitted document as instructed by the lecturer.
+
+### Question Paper Quiz (4 November 2026)
+ChatGPT/Codex assisted with the PDF quiz screens, account-scoped offline storage, authenticated backend integration, validation, translations and automated tests. The feature uses OpenAI to generate practice questions, suggested answers and explanations from a user-selected PDF after consent. Generated answers and translations need human review; the feature is not an official memorandum. Live generation and physical-device testing are documented separately from automated checks.

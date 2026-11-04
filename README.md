@@ -196,3 +196,9 @@ older memberships can display UID labels until their directory entries are popul
 - Firestore emulator (isolated demo project): `npm install` then `npm run test:rules`
 - Device migration test: `./gradlew :app:connectedDebugAndroidTest`
 - See `docs/group-planning-checks.md` for physical-device checks.
+
+## Question Paper Quiz
+
+Open **Home → Question Paper Quiz** to upload a PDF and generate a 5- or 10-question multiple-choice practice quiz. Saved quizzes support offline answering, resumed attempts, scores, explanations, and retrying mistakes. Available in English, Afrikaans and isiZulu. AI-generated answers require checking against your course material.
+
+Generation requires the backend's `OPENAI_API_KEY` and a real Android `studyhubApiBaseUrl`; these are not bundled credentials. See [setup and verification](docs/question-paper-quiz.md). Run `npm run test:quiz` for backend validation tests.

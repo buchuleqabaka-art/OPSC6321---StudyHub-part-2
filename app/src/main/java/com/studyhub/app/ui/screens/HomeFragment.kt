@@ -19,6 +19,7 @@ class HomeFragment : HubFragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         mainViewModel.selectPlanningGroup(null)
         _binding = FragmentHomeBinding.bind(view)
+        binding.buttonHomeQuiz.setOnClickListener { navigator.navigate(Routes.QUIZ) }
         binding.buttonHomeGroups.setOnClickListener { navigator.navigate(Routes.GROUPS, clearBackStack = true) }
         binding.buttonHomeTasks.setOnClickListener { navigator.navigate(Routes.TASKS, clearBackStack = true) }
         binding.linkAllTasks.setOnClickListener { navigator.navigate(Routes.TASKS, clearBackStack = true) }
