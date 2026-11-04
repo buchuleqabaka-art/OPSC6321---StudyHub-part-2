@@ -38,10 +38,15 @@ async function generate(pdf, count, language, env = process.env, fetcher = fetch
   return validateQuiz(JSON.parse(output), count);
 }
 function registerQuiz(app, { express, verify, reserve, generator = generate, env = process.env }) {
+  app.get('/api/quizzes/status', async (req, res) => {
+    const user = await verify(req, res);
+    if (!user) return;
+    res.set('Cache-Control', 'no-store').json({ configured: Boolean(env.OPENAI_API_KEY?.trim()), maxPdfBytes: MAX_PDF, counts: [5, 10] });
+  });
   app.post('/api/quizzes/generate', async (req, res, next) => {
     const user = await verify(req, res);
     if (!user) return;
-    if (!env.OPENAI_API_KEY) return res.status(503).json({ error: 'quiz_not_configured' });
+    if (!env.OPENAI_API_KEY?.trim()) return res.status(503).json({ error: 'quiz_not_configured' });
     req.quizUid = user.uid;
     next();
   }, express.raw({ type: 'application/pdf', limit: MAX_PDF }), async (req, res) => {

@@ -10,12 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Service account comes from an environment variable so no keys sit in git
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-if (serviceAccount.project_id) {
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+// Validate configuration without printing credentials.
+const config = require('./server/config.cjs').readConfig();
+if (config.serviceAccount) {
+  admin.initializeApp({ credential: admin.credential.cert(config.serviceAccount) });
 } else {
-  admin.initializeApp(); // uses application default credentials
+  admin.initializeApp(); // Google Cloud application default credentials
 }
 const db = admin.firestore();
 
@@ -295,5 +295,4 @@ app.delete('/api/resources/:id', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`StudyHub API listening on ${PORT}`));
+app.listen(config.port, '0.0.0.0', () => console.log(`StudyHub API listening on ${config.port}`));

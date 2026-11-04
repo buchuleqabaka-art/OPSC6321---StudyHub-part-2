@@ -1,0 +1,6 @@
+# Copy this setting to your user-level Gradle properties file:
+# Windows: C:\Users\YOUR_NAME\.gradle\gradle.properties
+# macOS/Linux: ~/.gradle/gradle.properties
+# Replace the placeholder with the HTTPS address of the deployed StudyHub API.
+studyhubApiBaseUrl=https://YOUR-API-HOST/
+# Do not put OPENAI_API_KEY or Firebase service-account JSON in Android properties.

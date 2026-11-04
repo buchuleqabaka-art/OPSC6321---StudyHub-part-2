@@ -12,3 +12,10 @@ captures/
 .cxx/
 .DS_Store
 node_modules/
+
+# Server credentials must never be committed.
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json

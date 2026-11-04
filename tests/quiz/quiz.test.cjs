@@ -39,6 +39,15 @@ test('HTTP endpoint checks authentication, setup, size, PDF, options, quota and 
   const url = `http://127.0.0.1:${server.address().port}/api/quizzes/generate`;
   const request = (body='%PDF-1.4\n', query='?count=5&lang=en', auth='Bearer test') => fetch(url+query, {method:'POST',headers:{'Content-Type':'application/pdf',Authorization:auth},body});
   try {
+    const statusUrl = url.replace('/generate', '/status');
+    assert.equal((await fetch(statusUrl)).status,401);
+    let status = await fetch(statusUrl,{headers:{Authorization:'Bearer test'}});
+    assert.equal((await status.json()).configured,true);
+    env.OPENAI_API_KEY='   ';
+    status = await fetch(statusUrl,{headers:{Authorization:'Bearer test'}});
+    assert.equal((await status.json()).configured,false);
+    assert.equal((await request()).status,503);
+    env.OPENAI_API_KEY='test';
     assert.equal((await request(undefined,undefined,'')).status,401);
     delete env.OPENAI_API_KEY; assert.equal((await request()).status,503); env.OPENAI_API_KEY='test';
     assert.equal((await request('not a PDF')).status,400);

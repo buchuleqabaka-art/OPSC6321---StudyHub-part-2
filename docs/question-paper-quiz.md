@@ -25,3 +25,17 @@ Automated: `npm run test:quiz`; Android `./gradlew :app:testDebugUnitTest :app:a
 Physical-device checks still required: generate from a known paper and compare every answer to its memo; test EN/AF/ZU; select/cancel file picker; malformed/large/encrypted/scanned PDF; denied consent; offline generation; timeout; account switch during generation; rotate and leave/reopen during quiz; finish and retry mistakes; delete; switch accounts; reopen saved quiz with airplane mode enabled. Live AI generation requires a deployed API and funded server key and has not been verified by the code tests.
 
 Implementation references: https://developers.openai.com/api/docs/guides/file-inputs and https://developers.openai.com/api/docs/guides/structured-outputs (accessed 4 November 2026).
+
+## Deploy the supplied container
+
+1. Merge the feature PR when you are ready to deploy it, or point your host at `feature/question-paper-quiz` while testing.
+2. In a Docker-capable hosting service, select this repository and its root `Dockerfile`. The container starts the API on `PORT` (8080 by default), listens on all interfaces, and runs as an unprivileged user. Use `/` as the health-check path. A healthy process does not prove Firebase or AI credentials work.
+3. Add `OPENAI_API_KEY` to the host's secret environment settings. For non-Google hosting, also set `FIREBASE_SERVICE_ACCOUNT` to your Firebase service-account JSON. For Google Cloud, assign an appropriate service account and use Application Default Credentials. Never send these secrets in a chat or commit them.
+4. Ensure Firebase Auth and Firestore use the same project as `app/google-services.json`. Enable the required Firestore API and grant the backend service account access to the existing collections and `quizUsage`.
+5. Deploy and copy the HTTPS URL. Open it in your browser: it should return `StudyHub API` and `status: ok`.
+6. Copy the setting from `android-api.properties.example` into your user-level Gradle properties file, replace `https://YOUR-API-HOST/` with that URL, sync Gradle, rebuild and install the app.
+7. Sign in and generate a quiz from a short known PDF. Check its answers against a memo. Turn off internet and reopen the saved quiz to verify offline practice.
+
+`GET /api/quizzes/status` with a Firebase bearer token reports whether a key is configured (without exposing it), upload size and supported counts. This checks configuration presence only; it does not validate the key, provider billing, model access or Firestore permissions. Only an end-to-end quiz generation verifies those.
+
+For a local Docker build: `docker build -t studyhub-api .`. Set secrets in a local ignored `.env`, then run `docker run --rm --env-file .env -p 8080:8080 studyhub-api`. The Android production client requires HTTPS, so deploy behind your host's HTTPS endpoint for phone testing. Docker is not required to open the Android project.
