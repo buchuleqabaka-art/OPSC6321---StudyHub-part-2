@@ -47,7 +47,7 @@ function registerQuiz(app, { express, verify, reserve, generator = generate, env
   }, express.raw({ type: 'application/pdf', limit: MAX_PDF }), async (req, res) => {
     const count = Number(req.query.count);
     const languages = { en: 'English', af: 'Afrikaans', zu: 'isiZulu' };
-    const language = languages[req.query.lang];
+    const language = Object.hasOwn(languages, req.query.lang) ? languages[req.query.lang] : null;
     if (![5, 10].includes(count) || !language || !Buffer.isBuffer(req.body) || req.body.length < 8 ||
         req.body.length > MAX_PDF || req.body.subarray(0, 5).toString() !== '%PDF-') {
       return res.status(400).json({ error: 'invalid_pdf_or_options' });

@@ -44,6 +44,7 @@ test('HTTP endpoint checks authentication, setup, size, PDF, options, quota and 
     assert.equal((await request('not a PDF')).status,400);
     assert.equal((await request(undefined,'?count=50&lang=en')).status,400);
     assert.equal((await request(undefined,'?count=5&lang=bad')).status,400);
+    assert.equal((await request(undefined,'?count=5&lang=__proto__')).status,400);
     assert.equal((await request(Buffer.alloc(5*1024*1024+1))).status,413);
     assert.equal(calls,0);
     allowed=false; assert.equal((await request()).status,429); allowed=true;
