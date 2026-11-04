@@ -341,4 +341,5 @@
     <string name="poll_question">Umbuzo</string>
     <string name="poll_option">Inketho %1$d (kudingeka okungenani ezingu-2)</string>
     <string name="poll_invalid">Faka umbuzo nezinketho ezihlukene ezingu-2 kuya kwezingu-4.</string>
+    <string name="attendance_update">Buyekeza ukuya esifundweni</string>
 </resources>

@@ -55,13 +55,18 @@ class AttendanceFragment : HubFragment(R.layout.fragment_engagement) {
         box.label(getString(R.string.attendance_count, getString(R.string.attendance_unknown), summary.unrecorded))
         if (sessions.isEmpty()) box.label(getString(R.string.attendance_empty))
         sessions.forEach { session ->
-            box.label(session.title, 20f)
-            box.label(DateUtils.formatDate(requireContext(), session.startTime))
+            val card = box.section()
+            card.label(session.title, 20f)
+            card.label(DateUtils.formatDate(requireContext(), session.startTime))
             val status = when (state.records[session.id]) { "attended" -> R.string.attendance_present; "absent" -> R.string.attendance_absent; else -> R.string.attendance_unknown }
-            box.label(getString(status))
-            box.action(getString(R.string.attendance_present), !state.busy) { model.mark(session.id, "attended") }
-            box.action(getString(R.string.attendance_absent), !state.busy) { model.mark(session.id, "absent") }
-            if (state.records.containsKey(session.id)) box.action(getString(R.string.attendance_clear), !state.busy) { model.mark(session.id, null) }
+            card.label(getString(status))
+            card.action(getString(R.string.attendance_update), !state.busy) {
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(session.title)
+                    .setItems(arrayOf(getString(R.string.attendance_present), getString(R.string.attendance_absent), getString(R.string.attendance_clear))) { _, index ->
+                        model.mark(session.id, when(index) { 0 -> "attended"; 1 -> "absent"; else -> null })
+                    }.setNegativeButton(android.R.string.cancel, null).show()
+            }
         }
     }
 }

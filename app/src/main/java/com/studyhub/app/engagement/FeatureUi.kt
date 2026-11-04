@@ -19,3 +19,14 @@ fun LinearLayout.bar(value: Int, total: Int, description: String, color: Int) {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (20 * resources.displayMetrics.density).toInt())
     })
 }
+
+fun LinearLayout.section(): LinearLayout {
+    val density = resources.displayMetrics.density
+    val content = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; val p = (16 * density).toInt(); setPadding(p,p,p,p) }
+    addView(com.google.android.material.card.MaterialCardView(context).apply {
+        radius = 20 * density; cardElevation = 2 * density
+        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = (16*density).toInt(); bottomMargin = (4*density).toInt() }
+        addView(content)
+    })
+    return content
+}

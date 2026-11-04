@@ -342,4 +342,5 @@
     <string name="poll_question">Question</string>
     <string name="poll_option">Option %1$d (at least 2 required)</string>
     <string name="poll_invalid">Enter a question and 2–4 different options.</string>
+    <string name="attendance_update">Update attendance</string>
 </resources>

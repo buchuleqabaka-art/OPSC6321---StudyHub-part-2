@@ -341,4 +341,5 @@
     <string name="poll_question">Vraag</string>
     <string name="poll_option">Opsie %1$d (minstens 2 nodig)</string>
     <string name="poll_invalid">Voer ’n vraag en 2–4 verskillende opsies in.</string>
+    <string name="attendance_update">Werk bywoning by</string>
 </resources>

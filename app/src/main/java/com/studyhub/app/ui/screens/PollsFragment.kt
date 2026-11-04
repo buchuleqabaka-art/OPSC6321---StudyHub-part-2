@@ -29,16 +29,17 @@ class PollsFragment : HubFragment(R.layout.fragment_engagement) {
         if (!state.pollsLoaded) { box.label(getString(R.string.engagement_loading)); return }
         if (state.polls.isEmpty()) box.label(getString(R.string.poll_empty))
         state.polls.forEach { poll ->
-            box.label(poll.question, 22f)
-            box.label(getString(if (poll.closed) R.string.poll_closed else R.string.poll_open))
-            box.label(getString(R.string.poll_total, poll.votes.size))
+            val card = box.section()
+            card.label(poll.question, 22f)
+            card.label(getString(if (poll.closed) R.string.poll_closed else R.string.poll_open))
+            card.label(getString(R.string.poll_total, poll.votes.size))
             val selected = poll.votes[state.uid]
             val counts = poll.counts
             poll.options.forEachIndexed { index, option ->
-                box.bar(counts[index], poll.votes.size, getString(R.string.poll_result, option, counts[index]), requireContext().getColor(R.color.lilac_primary_dark))
-                box.action(getString(if (selected == index) R.string.poll_selected else R.string.poll_vote, option), !state.busy && !poll.closed && selected != index) { model.vote(poll.id, index) }
+                card.bar(counts[index], poll.votes.size, getString(R.string.poll_result, option, counts[index]), requireContext().getColor(R.color.lilac_primary_dark))
+                card.action(getString(if (selected == index) R.string.poll_selected else R.string.poll_vote, option), !state.busy && !poll.closed && selected != index) { model.vote(poll.id, index) }
             }
-            if (!poll.closed && poll.ownerId == state.uid) box.action(getString(R.string.poll_close), !state.busy) {
+            if (!poll.closed && poll.ownerId == state.uid) card.action(getString(R.string.poll_close), !state.busy) {
                 MaterialAlertDialogBuilder(requireContext()).setMessage(R.string.poll_close_confirm).setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(R.string.poll_close) { _, _ -> model.closePoll(poll.id) }.show()
             }
