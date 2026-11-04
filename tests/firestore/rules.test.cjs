@@ -73,3 +73,37 @@ test('removed member loses read and completion access',async()=>{
   await assertFails(getDoc(doc(db('bob'),'tasks/task')));
   await assertFails(updateDoc(doc(db('bob'),'tasks/task'),{completed:true}));
 });
+
+test('attendance records are private, ended-session-only and correctable',async()=>{
+  const {serverTimestamp}=require('firebase/firestore');
+  await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),'sessions/past'),session({startTime:1,endTime:2})));
+  const record=()=>({status:'attended',updatedAt:serverTimestamp()});
+  await assertSucceeds(setDoc(doc(db('bob'),'users/bob/attendance/past'),record()));
+  await assertFails(getDoc(doc(db('alice'),'users/bob/attendance/past')));
+  await assertFails(setDoc(doc(db('alice'),'users/bob/attendance/past'),record()));
+  await assertFails(setDoc(doc(db('eve'),'users/eve/attendance/past'),record()));
+  await assertFails(setDoc(doc(db('bob'),'users/bob/attendance/session'),record()));
+  await assertFails(setDoc(doc(db('bob'),'users/bob/attendance/missing'),record()));
+  await assertFails(setDoc(doc(db('bob'),'users/bob/attendance/past'),{...record(),status:'fake'}));
+  await assertSucceeds(setDoc(doc(db('bob'),'users/bob/attendance/past'),{...record(),status:'absent'}));
+  await assertSucceeds(deleteDoc(doc(db('bob'),'users/bob/attendance/past')));
+});
+test('polls enforce group membership, options, own vote and owner-only closure',async()=>{
+  const {serverTimestamp}=require('firebase/firestore');
+  const poll=()=>({question:'When?',options:['Today','Tomorrow'],ownerId:'alice',closed:false,createdAt:serverTimestamp()});
+  const path='groups/group/polls/p';
+  await assertSucceeds(setDoc(doc(db('alice'),path),poll()));
+  await assertFails(setDoc(doc(db('eve'),'groups/group/polls/e'),{...poll(),ownerId:'eve'}));
+  await assertFails(setDoc(doc(db('alice'),'groups/group/polls/bad'),{...poll(),options:['A','A']}));
+  await assertFails(setDoc(doc(db('alice'),'groups/group/polls/empty'),{...poll(),question:''}));
+  await assertFails(getDoc(doc(db('eve'),path)));
+  await assertSucceeds(setDoc(doc(db('bob'),path+'/votes/bob'),{choice:0}));
+  await assertSucceeds(setDoc(doc(db('bob'),path+'/votes/bob'),{choice:1}));
+  await assertFails(setDoc(doc(db('bob'),path+'/votes/alice'),{choice:0}));
+  await assertFails(setDoc(doc(db('bob'),path+'/votes/bob'),{choice:2}));
+  await assertFails(updateDoc(doc(db('bob'),path),{closed:true}));
+  await assertFails(updateDoc(doc(db('alice'),path),{question:'Changed'}));
+  await assertSucceeds(updateDoc(doc(db('alice'),path),{closed:true}));
+  await assertFails(setDoc(doc(db('bob'),path+'/votes/bob'),{choice:0}));
+  await assertFails(updateDoc(doc(db('alice'),path),{closed:false}));
+});

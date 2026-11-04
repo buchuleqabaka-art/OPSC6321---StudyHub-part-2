@@ -9,7 +9,9 @@
     android:paddingTop="20dp"
     android:paddingEnd="20dp">
 
-    <TextView android:id="@+id/planning_scope" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/planning_all" android:textColor="@color/ink_muted" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/button_attendance"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/attendance_title" />
+        <TextView android:id="@+id/planning_scope" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/planning_all" android:textColor="@color/ink_muted" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/study_sessions" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/sessions_subtitle" android:textColor="@color/ink_muted" android:textSize="14sp" />
 

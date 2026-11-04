@@ -47,6 +47,17 @@ service cloud.firestore {
         ]);
       allow delete: if false;
 
+      match /attendance/{sessionId} {
+        allow read: if ownsProfile(userId);
+        allow create, update: if ownsProfile(userId)
+          && request.resource.data.keys().hasOnly(['status', 'updatedAt'])
+          && request.resource.data.status in ['attended', 'absent']
+          && request.resource.data.updatedAt == request.time
+          && canReadPlanning(get(/databases/$(database)/documents/sessions/$(sessionId)).data)
+          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.endTime <= request.time.toMillis();
+        allow delete: if ownsProfile(userId);
+      }
+
       // Device tokens are only written by the trusted REST API using Admin SDK.
       match /deviceTokens/{tokenId} {
         allow read, write: if false;
@@ -84,6 +95,35 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['name'])
           && request.resource.data.name is string && request.resource.data.name.size() <= 80;
         allow delete: if signedIn() && request.auth.uid == memberId;
+      }
+
+      match /polls/{pollId} {
+        function validOption(value) { return value is string && value.size() > 0 && value.size() <= 100; }
+        allow read: if isGroupMember(groupId);
+        allow create: if isGroupMember(groupId)
+          && request.resource.data.keys().hasOnly(['question', 'options', 'ownerId', 'closed', 'createdAt'])
+          && request.resource.data.ownerId == request.auth.uid
+          && request.resource.data.closed == false
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.question is string && request.resource.data.question.size() > 0 && request.resource.data.question.size() <= 200
+          && request.resource.data.options is list && request.resource.data.options.size() >= 2 && request.resource.data.options.size() <= 4
+          && request.resource.data.options.toSet().size() == request.resource.data.options.size()
+          && validOption(request.resource.data.options[0]) && validOption(request.resource.data.options[1])
+          && (request.resource.data.options.size() < 3 || validOption(request.resource.data.options[2]))
+          && (request.resource.data.options.size() < 4 || validOption(request.resource.data.options[3]));
+        allow update: if isGroupMember(groupId) && resource.data.ownerId == request.auth.uid
+          && resource.data.closed == false && request.resource.data.closed == true
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['closed']);
+        allow delete: if false;
+        match /votes/{userId} {
+          allow read: if isGroupMember(groupId);
+          allow create, update: if isGroupMember(groupId) && request.auth.uid == userId
+            && get(/databases/$(database)/documents/groups/$(groupId)/polls/$(pollId)).data.closed == false
+            && request.resource.data.keys().hasOnly(['choice'])
+            && request.resource.data.choice is int && request.resource.data.choice >= 0
+            && request.resource.data.choice < get(/databases/$(database)/documents/groups/$(groupId)/polls/$(pollId)).data.options.size();
+          allow delete: if false;
+        }
       }
 
       match /messages/{messageId} {

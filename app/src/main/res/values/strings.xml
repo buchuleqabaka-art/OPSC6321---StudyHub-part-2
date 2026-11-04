@@ -310,4 +310,36 @@
     <string name="quiz_full">You have 20 saved quizzes. Delete one before creating another.</string>
     <string name="quiz_setup">Quiz generation is not configured yet. Saved quizzes still work offline.</string>
     <string name="quiz_limit">Daily limit reached (10 generation attempts). Try again tomorrow.</string>
+    <string name="attendance_title">My attendance</string>
+    <string name="attendance_note">Self-reported attendance for completed sessions. RSVP is not proof of attendance. The percentage uses Attended + Absent only; unrecorded sessions are excluded. Changes need internet.</string>
+    <string name="attendance_all_groups">All groups and personal sessions</string>
+    <string name="attendance_recent">Last 30 days</string>
+    <string name="attendance_percentage">Attendance: %1$d%%</string>
+    <string name="attendance_no_ratio">No recorded attendance yet</string>
+    <string name="attendance_ratio">Attended : Absent = %1$d : %2$d</string>
+    <string name="attendance_count">%1$s: %2$d</string>
+    <string name="attendance_present">Attended</string>
+    <string name="attendance_absent">Absent</string>
+    <string name="attendance_unknown">Not recorded</string>
+    <string name="attendance_clear">Clear attendance record</string>
+    <string name="attendance_empty">No completed sessions match this filter.</string>
+    <string name="engagement_failed">Could not load or save. Check your connection and Firebase configuration, then retry.</string>
+    <string name="engagement_refresh">Retry loading</string>
+    <string name="engagement_loading">Loading records…</string>
+    <string name="engagement_cached">Showing cached records; connect to refresh.</string>
+    <string name="poll_title">Group polls</string>
+    <string name="poll_note">One vote per member; choose again to change it. Votes are visible to group members, not anonymous. Creating, voting and closing need internet. Showing the latest 30 polls; cached results may be out of date.</string>
+    <string name="poll_create">Create poll</string>
+    <string name="poll_empty">No polls in this group yet.</string>
+    <string name="poll_open">Voting open</string>
+    <string name="poll_closed">Voting closed</string>
+    <string name="poll_total">Votes: %1$d</string>
+    <string name="poll_result">%1$s — %2$d votes</string>
+    <string name="poll_selected">Your vote: %1$s</string>
+    <string name="poll_vote">Vote: %1$s</string>
+    <string name="poll_close">Close poll</string>
+    <string name="poll_close_confirm">Close voting? This cannot be reopened.</string>
+    <string name="poll_question">Question</string>
+    <string name="poll_option">Option %1$d (at least 2 required)</string>
+    <string name="poll_invalid">Enter a question and 2–4 different options.</string>
 </resources>

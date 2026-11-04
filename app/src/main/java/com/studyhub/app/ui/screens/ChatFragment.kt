@@ -22,6 +22,7 @@ class ChatFragment : HubFragment(R.layout.fragment_chat) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentChatBinding.bind(view)
+        binding.buttonPolls.setOnClickListener { navigator.navigate(Routes.POLLS) }
         renderedMessages = null
         renderedGroupId = null
         binding.messageInput.doAfterTextChanged {

@@ -17,6 +17,8 @@ import com.studyhub.app.ui.screens.ChatFragment
 import com.studyhub.app.ui.screens.GroupDetailFragment
 import com.studyhub.app.viewmodel.MainViewModel
 import com.studyhub.app.ui.screens.GroupsFragment
+import com.studyhub.app.ui.screens.AttendanceFragment
+import com.studyhub.app.ui.screens.PollsFragment
 import com.studyhub.app.ui.screens.QuizFragment
 import com.studyhub.app.ui.screens.HomeFragment
 import com.studyhub.app.ui.screens.LoginFragment
@@ -121,6 +123,8 @@ class MainActivity : AppCompatActivity(), StudyHubNavigator {
             Routes.REGISTER -> RegisterFragment()
             Routes.HOME -> HomeFragment()
             Routes.QUIZ -> QuizFragment()
+            Routes.ATTENDANCE -> AttendanceFragment()
+            Routes.POLLS -> PollsFragment()
             Routes.GROUP_DETAIL -> GroupDetailFragment()
             Routes.GROUPS -> GroupsFragment()
             Routes.TASKS -> TasksFragment()

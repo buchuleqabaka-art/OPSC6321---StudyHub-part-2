@@ -17,6 +17,7 @@ class SessionsFragment : HubFragment(R.layout.fragment_sessions) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSessionsBinding.bind(view)
+        binding.buttonAttendance.setOnClickListener { navigator.navigate(com.studyhub.app.ui.navigation.Routes.ATTENDANCE) }
         binding.buttonScheduleSession.setOnClickListener {
             DialogHelper.createSession(requireContext(), mainViewModel.state.value.groups, mainViewModel.state.value.planningGroupId) { session ->
                 mainViewModel.addSession(session) { ok -> planningFeedback(binding.root, ok, R.string.session_scheduled) }

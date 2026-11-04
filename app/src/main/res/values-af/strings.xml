@@ -309,4 +309,36 @@
     <string name="quiz_full">Jy het 20 gestoorde vasvrae. Vee een uit voordat jy nog een skep.</string>
     <string name="quiz_setup">Vasvraskepping is nog nie opgestel nie. Gestoorde vasvrae werk steeds vanlyn.</string>
     <string name="quiz_limit">Daaglikse limiet bereik (10 pogings). Probeer môre weer.</string>
+    <string name="attendance_title">My bywoning</string>
+    <string name="attendance_note">Selfgerapporteerde bywoning vir voltooide sessies. RSVP is nie bewys van bywoning nie. Die persentasie gebruik slegs Bygewoon + Afwesig; ongeregistreerde sessies word uitgesluit. Veranderinge benodig internet.</string>
+    <string name="attendance_all_groups">Alle groepe en persoonlike sessies</string>
+    <string name="attendance_recent">Laaste 30 dae</string>
+    <string name="attendance_percentage">Bywoning: %1$d%%</string>
+    <string name="attendance_no_ratio">Nog geen bywoning aangeteken nie</string>
+    <string name="attendance_ratio">Bygewoon : Afwesig = %1$d : %2$d</string>
+    <string name="attendance_count">%1$s: %2$d</string>
+    <string name="attendance_present">Bygewoon</string>
+    <string name="attendance_absent">Afwesig</string>
+    <string name="attendance_unknown">Nie aangeteken nie</string>
+    <string name="attendance_clear">Vee bywoningsrekord uit</string>
+    <string name="attendance_empty">Geen voltooide sessies pas by hierdie filter nie.</string>
+    <string name="engagement_failed">Kon nie laai of stoor nie. Kontroleer jou verbinding en Firebase-opstelling en probeer weer.</string>
+    <string name="engagement_refresh">Probeer weer laai</string>
+    <string name="engagement_loading">Laai rekords…</string>
+    <string name="engagement_cached">Gekaste rekords word gewys; koppel om te verfris.</string>
+    <string name="poll_title">Groeppeilings</string>
+    <string name="poll_note">Een stem per lid; kies weer om dit te verander. Stemme is sigbaar vir groeplede, nie anoniem nie. Skep, stem en sluit benodig internet. Die jongste 30 peilings word gewys; gekaste resultate kan verouderd wees.</string>
+    <string name="poll_create">Skep peiling</string>
+    <string name="poll_empty">Nog geen peilings in hierdie groep nie.</string>
+    <string name="poll_open">Stemming oop</string>
+    <string name="poll_closed">Stemming gesluit</string>
+    <string name="poll_total">Stemme: %1$d</string>
+    <string name="poll_result">%1$s — %2$d stemme</string>
+    <string name="poll_selected">Jou stem: %1$s</string>
+    <string name="poll_vote">Stem: %1$s</string>
+    <string name="poll_close">Sluit peiling</string>
+    <string name="poll_close_confirm">Sluit stemming? Dit kan nie heropen word nie.</string>
+    <string name="poll_question">Vraag</string>
+    <string name="poll_option">Opsie %1$d (minstens 2 nodig)</string>
+    <string name="poll_invalid">Voer ’n vraag en 2–4 verskillende opsies in.</string>
 </resources>

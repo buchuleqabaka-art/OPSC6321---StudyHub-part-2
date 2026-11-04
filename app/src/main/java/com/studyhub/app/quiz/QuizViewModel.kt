@@ -74,8 +74,7 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
         val bytes = pdf ?: throw QuizFailure(R.string.quiz_pdf_invalid)
         if (!consent) throw QuizFailure(R.string.quiz_consent_needed)
         if (mutable.value.saved.size >= 20) throw QuizFailure(R.string.quiz_full)
-        val base = Uri.parse(BuildConfig.API_BASE_URL)
-        if (base.scheme != "https" || base.host.isNullOrBlank() || base.host == "example.com") throw QuizFailure(R.string.quiz_setup)
+        if (!com.studyhub.app.util.ApiEndpointPolicy.allowed(BuildConfig.API_BASE_URL, BuildConfig.DEBUG)) throw QuizFailure(R.string.quiz_setup)
         val token = auth.currentUser?.getIdToken(false)?.await()?.token ?: throw QuizFailure(R.string.quiz_sign_in)
         if (uid != user) throw CancellationException()
         val requestedCount = count

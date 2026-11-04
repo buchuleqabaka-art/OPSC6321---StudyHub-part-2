@@ -309,4 +309,36 @@
     <string name="quiz_full">Unamasethi emibuzo angu-20 agciniwe. Susa elilodwa ngaphambi kokwakha elinye.</string>
     <string name="quiz_setup">Ukwakhiwa kwemibuzo akukasethwa. Imibuzo egciniwe isasebenza ngaphandle kwe-inthanethi.</string>
     <string name="quiz_limit">Usufinyelele umkhawulo wosuku (imizamo engu-10). Zama futhi kusasa.</string>
+    <string name="attendance_title">Ukuya kwami ezifundweni</string>
+    <string name="attendance_note">Ukuya ezifundweni okubikwe nguwe kumaseshini aphelile. I-RSVP ayibona ubufakazi bokuba khona. Iphesenti lisebenzisa Obekhona + Obengekho kuphela; okungarekhodiwe akubalelwa. Izinguquko zidinga i-inthanethi.</string>
+    <string name="attendance_all_groups">Wonke amaqembu namaseshini omuntu siqu</string>
+    <string name="attendance_recent">Izinsuku ezingu-30 ezidlule</string>
+    <string name="attendance_percentage">Ukuya ezifundweni: %1$d%%</string>
+    <string name="attendance_no_ratio">Akukho ukuya ezifundweni okurekhodiwe okwamanje</string>
+    <string name="attendance_ratio">Obekhona : Obengekho = %1$d : %2$d</string>
+    <string name="attendance_count">%1$s: %2$d</string>
+    <string name="attendance_present">Bengikhona</string>
+    <string name="attendance_absent">Bengingekho</string>
+    <string name="attendance_unknown">Akurekhodiwe</string>
+    <string name="attendance_clear">Sula irekhodi lokuya esifundweni</string>
+    <string name="attendance_empty">Awekho amaseshini aphelile ahambisana nalesi sihlungi.</string>
+    <string name="engagement_failed">Ayikwazanga ukulayisha noma ukugcina. Hlola uxhumano nokusethwa kwe-Firebase bese uzama futhi.</string>
+    <string name="engagement_refresh">Zama ukulayisha futhi</string>
+    <string name="engagement_loading">Kulayishwa amarekhodi…</string>
+    <string name="engagement_cached">Kuboniswa amarekhodi agciniwe; xhuma ukuze uvuselele.</string>
+    <string name="poll_title">Ukuvota kweqembu</string>
+    <string name="poll_note">Ilungu livota kanye; khetha futhi ukuze ushintshe. Amavoti abonakala kumalungu eqembu, awafihliwe. Ukwakha, ukuvota nokuvala kudinga i-inthanethi. Kuboniswa amavoti angu-30 akamuva; imiphumela egciniwe ingaba midala.</string>
+    <string name="poll_create">Yakha ukuvota</string>
+    <string name="poll_empty">Akukho ukuvota kuleli qembu okwamanje.</string>
+    <string name="poll_open">Ukuvota kuvuliwe</string>
+    <string name="poll_closed">Ukuvota kuvaliwe</string>
+    <string name="poll_total">Amavoti: %1$d</string>
+    <string name="poll_result">%1$s — amavoti angu-%2$d</string>
+    <string name="poll_selected">Ivoti lakho: %1$s</string>
+    <string name="poll_vote">Votela: %1$s</string>
+    <string name="poll_close">Vala ukuvota</string>
+    <string name="poll_close_confirm">Vala ukuvota? Akukwazi ukuvulwa futhi.</string>
+    <string name="poll_question">Umbuzo</string>
+    <string name="poll_option">Inketho %1$d (kudingeka okungenani ezingu-2)</string>
+    <string name="poll_invalid">Faka umbuzo nezinketho ezihlukene ezingu-2 kuya kwezingu-4.</string>
 </resources>
