@@ -70,5 +70,5 @@ jobs:
         run: |
           docker build -t studyhub-api:ci .
           docker run --rm -d --name studyhub-api-ci -p 8081:8080 -e GOOGLE_CLOUD_PROJECT=demo-studyhub studyhub-api:ci
-          trap 'docker stop studyhub-api-ci' EXIT
-          curl --fail --retry 12 --retry-connrefused --retry-delay 2 http://localhost:8081/
+          trap 'docker logs studyhub-api-ci; docker stop studyhub-api-ci' EXIT
+          curl --fail --retry 12 --retry-all-errors --retry-delay 2 --max-time 5 http://localhost:8081/
