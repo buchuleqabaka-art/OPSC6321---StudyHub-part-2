@@ -221,14 +221,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repo.setTaskCompleted(task).onFailure { _state.update { state -> state.copy(error = getApplication<Application>().getString(R.string.planning_save_failed)) } }
     }
 
-    fun deleteTask(taskId: String) = viewModelScope.launch { repo.deleteTask(taskId) }
+    fun deleteTask(taskId: String, onResult: (Boolean) -> Unit = {}) = viewModelScope.launch {
+        val result = repo.deleteTask(taskId)
+        onResult(result.isSuccess)
+        result.onFailure { _state.update { it.copy(error = getApplication<Application>().getString(R.string.planning_save_failed)) } }
+    }
 
     fun addSession(session: StudySession, onResult: (Boolean) -> Unit = {}) = viewModelScope.launch {
         repo.addSession(session).also { onResult(it.isSuccess) }.onFailure { e -> _state.update { it.copy(error = e.localizedMessage) } }
     }
 
     fun toggleAttendance(sessionId: String) = viewModelScope.launch {
-        repo.toggleAttendance(sessionId)
+        repo.toggleAttendance(sessionId).onFailure { _state.update { it.copy(error = getApplication<Application>().getString(R.string.planning_save_failed)) } }
     }
 
     fun clearError() = _state.update { it.copy(error = null) }

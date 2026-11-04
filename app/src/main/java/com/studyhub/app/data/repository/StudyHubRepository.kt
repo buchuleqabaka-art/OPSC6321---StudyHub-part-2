@@ -22,10 +22,7 @@ import com.studyhub.app.data.model.Task
 import com.studyhub.app.data.model.UserProfile
 import com.studyhub.app.data.sync.TaskSyncScheduler
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -37,7 +34,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
@@ -58,7 +54,6 @@ class StudyHubRepository(
     private val appContext: Context,
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         private const val TAG = "StudyHubRepository"
@@ -81,20 +76,18 @@ class StudyHubRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeProfile(): Flow<UserProfile?> = authUidFlow().flatMapLatest { currentUid ->
-        localDao.observeProfile(currentUid)
-            .map { it?.toModel() }
-            .onStart {
-                if (currentUid.isNotEmpty()) {
-                    firestore.collection(USERS).document(currentUid)
-                        .addSnapshotListener { snap, error ->
-                            if (error == null && snap != null) {
-                                snap.toObject(UserProfile::class.java)?.let { profile ->
-                                    scope.launch { localDao.insertProfile(profile.toEntity()) }
-                                }
-                            }
-                        }
+        if (currentUid.isBlank()) return@flatMapLatest flowOf(null)
+        callbackFlow {
+            val cache = launch { localDao.observeProfile(currentUid).collect { send(it?.toModel()) } }
+            val listener = firestore.collection(USERS).document(currentUid).addSnapshotListener { snap, error ->
+                if (error == null && snap != null) {
+                    snap.toObject(UserProfile::class.java)?.let { profile ->
+                        launch { localDao.insertProfile(profile.copy(uid = currentUid).toEntity()) }
+                    }
                 }
             }
+            awaitClose { listener.remove(); cache.cancel() }
+        }
     }
 
     suspend fun updateProfile(updates: Map<String, Any>): Result<Unit> = runCatching {

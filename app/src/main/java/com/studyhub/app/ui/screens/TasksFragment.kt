@@ -78,8 +78,9 @@ class TasksFragment : HubFragment(R.layout.fragment_tasks) {
             }
             row.taskDelete.contentDescription = getString(R.string.delete_task)
             row.taskDelete.setOnClickListener {
-                mainViewModel.deleteTask(task.id)
-                Snackbar.make(binding.root, R.string.task_deleted, Snackbar.LENGTH_SHORT).show()
+                mainViewModel.deleteTask(task.id) { ok ->
+                    if (ok && binding.root.isAttachedToWindow) Snackbar.make(binding.root, R.string.task_deleted, Snackbar.LENGTH_SHORT).show()
+                }
             }
             binding.tasksContainer.addView(row.root)
         }
