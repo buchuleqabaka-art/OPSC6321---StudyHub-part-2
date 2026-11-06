@@ -2,197 +2,283 @@
 
 **Organize. Collaborate. Achieve. Together.**
 
-StudyHub is an Android study-group organiser for South African students. Create study groups, share resources, track tasks and deadlines, schedule sessions, and chat with group members. This release strengthens the prototype with offline-first task synchronization, account-aware push notifications, profile-photo cloud storage, and complete English/Afrikaans/isiZulu UI localization.
+StudyHub is a native Android app that helps students run study groups in one place. Students can form groups, assign tasks, schedule study sessions, chat, take attendance, run quick polls and share past exam papers. It works offline and syncs when the connection returns.
 
-> **Module:** OPSC6321 - final StudyHub submission
->
-> **Android application ID:** `com.studyhub.app`
->
-> **Current app version:** `1.2.0` (version code 3)
+Built for **OPSC6311 / OPSC6312** (Campus / Study Group Organizer, Part 2: App Prototype). Author: Buchule.
+
+| | |
+|---|---|
+| **Version** | 1.3.0 (versionCode 4) |
+| **Package** | `com.studyhub.app` |
+| **Min / Target SDK** | 26 (Android 8.0) / 34 (Android 14) |
+| **Language** | Kotlin 2.0.20 |
+| **UI** | XML layouts, Fragments and ViewBinding |
+
+---
+
+## Table of contents
+
+1. [Features](#features)
+2. [Tech stack](#tech-stack)
+3. [Architecture](#architecture)
+4. [Project structure](#project-structure)
+5. [Getting started](#getting-started)
+6. [Configuration](#configuration)
+7. [REST API](#rest-api)
+8. [Security](#security)
+9. [Offline support and sync](#offline-support-and-sync)
+10. [Languages](#languages)
+11. [Testing](#testing)
+12. [Continuous integration](#continuous-integration)
+13. [Troubleshooting](#troubleshooting)
+
+---
 
 ## Features
 
-- **Secure sign-in:** Firebase Email/Password authentication, password reset, validation, and Google sign-in through Android Credential Manager. Firebase Auth handles password hashing; the app never stores a raw password.
-- **Study planning:** Home dashboard, groups and group chat, tasks with priorities/due dates, calendar agenda, sessions and attendance, profile editing, and preferences.
-- **Three app languages:** English, Afrikaans (`af`), and isiZulu (`zu`). The selected language is persisted and applied with Android per-app language support. Screen labels, dialogs, validation messages, navigation, accessibility labels, notification text, quotes, and date/number formatting use localized resources.
-- **Offline task outbox:** Task creation, completion, and deletion are saved to Room immediately. WorkManager waits for a network connection, checks the signed-in account and sync preference, and safely replays queued changes to Firestore. The Home screen shows the pending-sync count.
-- **Group-message push notifications:** Firebase Cloud Messaging data messages are sent by the authenticated REST API only after it confirms the sender is a group member and owns the referenced message. Tokens are removed on sign-out where possible; the Android service also checks the active account and notification preference before displaying a push.
-- **Profile-photo blob storage:** Students can upload an image from the Profile screen. Firebase Storage stores it under an owner-scoped path; uploads are limited to 5 MiB and image MIME types by both client and Storage rules.
-- **REST API and database:** An Express API backed by Firebase Admin/Firestore serves localized daily quotes and educational resources. Resource create/edit/delete calls require a Firebase ID token and are restricted to the authenticated author.
-- **Appearance and settings:** Dark mode, offline sync, data saver, notifications, and persisted per-app language preferences.
-- **Professional baseline:** Material-based lilac visual system, app launcher assets, field validation, localized error states, automated unit/build checks, and a documented demo walkthrough.
+**Accounts**
+- Register and sign in with email and password. Registration checks the email format and accepts accredited academic domains.
+- Continue with **Google** (Credential Manager) or **Apple / iCloud** (Firebase OAuth provider).
+- Password reset by email.
+- "Remember me" with an offline credential check (see [Security](#security)).
 
-## UI and architecture
+**Study groups**
+- Create a group with a subject, description and icon, and join one with its invite code.
+- Group detail screen with the invite code and shortcuts to the group's tasks, sessions and chat.
 
-The app UI is built with **Kotlin and Android XML layouts** using the Android View system and View Binding. Jetpack Compose is not used.
+**Planning**
+- **Tasks**: title, description, due date, priority (High / Medium / Low), assignee and completion. Each completed task earns 10 points on the student's profile.
+- **Study sessions**: title, start and end time, location and a "going" list.
+- **Calendar** with a daily agenda of the tasks and sessions on the selected day.
+- **Reminders**: a local notification when a task or session is due within the next hour, even offline.
 
-```text
-XML layouts + Fragments
-        ↓ events and StateFlow
-AuthViewModel · MainViewModel · SettingsViewModel
-        ↓
-AuthRepository · StudyHubRepository · ApiRepository
-        ↓
-Firebase Auth / Firestore / Storage / FCM
-Room task cache + outbox · DataStore preferences · WorkManager
-Express REST API backed by Firebase Admin / Firestore
+**Collaboration**
+- **Group chat** in real time, with push notifications for new messages.
+- **Attendance**: record attended or absent per finished session and see an attendance percentage.
+- **Polls**: a question with 2 to 4 options, one vote per member, and a closed state.
+- **Past papers**: upload PDFs (up to 10 MB) to a group and open them in any PDF viewer.
+
+**Home and profile**
+- Home dashboard with a daily motivational quote from the REST API. A localized quote is shown if the API is unreachable.
+- Profile with name, course, year of study, profile photo, points and tasks completed.
+- Settings for dark mode, offline sync, notifications and app language.
+
+---
+
+## Tech stack
+
+| Area | Library |
+|---|---|
+| Language / build | Kotlin 2.0.20, Android Gradle Plugin 8.4.0, Gradle 8.6, KSP |
+| UI | AppCompat, Material Components 1.10, Fragments, ViewBinding |
+| Auth | Firebase Authentication, AndroidX Credentials, Google ID |
+| Cloud data | Cloud Firestore, Firebase Storage, Firebase Cloud Messaging (Firebase BoM 33.1.2) |
+| Local data | Room 2.6.1, DataStore Preferences |
+| Background work | WorkManager 2.9.1 |
+| Networking | Retrofit 2.11 with Gson, OkHttp 4.12 logging interceptor |
+| Images | Glide 4.16 |
+| Security | AndroidX Security Crypto (EncryptedSharedPreferences) |
+| Testing | JUnit 4, AndroidX Test, Espresso |
+
+---
+
+## Architecture
+
+The app uses a layered MVVM structure with a single-activity, multi-fragment UI.
+
+```
+Fragments (ui/screens)  ->  ViewModels  ->  Repositories  ->  Firestore / Storage (Firebase)
+                                                          ->  Room (offline cache + task outbox)
+                                                          ->  Retrofit (StudyHub REST API)
 ```
 
-Firestore's Android SDK provides its own persistent cache. Room is the app's local source of truth for the task list and durable task outbox; DataStore stores user preferences. User-facing labels live in Android resources rather than being hard-coded in layouts.
+- **Fragments** render state and handle input. `MainActivity` hosts them and drives the bottom navigation (Home, Groups, Tasks, Sessions, Profile).
+- **ViewModels** (`MainViewModel`, `AuthViewModel`, `SettingsViewModel`, `EngagementViewModel`) hold UI state.
+- **Repositories** are the only layer that talks to data sources.
+  - `AuthRepository`: sign-in, registration, Google and Apple login.
+  - `StudyHubRepository`: Firestore data with a Room cache.
+  - `ApiRepository`: REST calls.
+- **Pure policy objects** (`Validators`, `PlanningPolicy`, `AttendancePolicy`, `PollPolicy`, `ApiEndpointPolicy`) hold business rules with no Android imports, so they run in fast JVM unit tests.
 
-### Important data flows
+---
 
-**Offline tasks**
+## Project structure
 
-1. A task change is written to Room and its outbox in a transaction, so it is immediately visible even with no connection.
-2. Unique per-account WorkManager work waits for a connected network and an enabled sync preference.
-3. The worker verifies that the same Firebase user is still signed in, replays queued operations by creation time, and removes an outbox item only after its Firestore write succeeds. Failed writes retry with backoff.
-
-**Push notifications**
-
-1. The user enables notifications in Profile and grants Android's notification permission where required.
-2. The app registers its FCM token with `POST /api/notifications/register` using a Firebase ID token. The server stores the token under that user's `deviceTokens` subcollection.
-3. After a Firestore chat message is written, the app calls `POST /api/notifications/group-message` with the group and message IDs.
-4. The server verifies the Firebase ID token, group membership, and message ownership, then sends a data-only FCM message to the other members' devices. The app checks the target account and preference before showing localized notification text.
-
-**Profile photos**
-
-Photos are uploaded to `profile-photos/{uid}/profile-image`. The Firestore profile stores the Firebase Storage download URL. The bundled `storage.rules` restrict uploads to the authenticated owner and `image/*` files no larger than 5 MiB.
-
-## Project layout
-
-```text
+```
 StudyHub/
-├── .github/workflows/android.yml  # Node syntax check, JVM tests, debug APK artifact
 ├── app/
 │   ├── build.gradle.kts
-│   ├── google-services.json       # Firebase Android client configuration
-│   └── src/main/
-│       ├── java/com/studyhub/app/
-│       │   ├── data/              # models, Room, Firebase, REST, sync worker
-│       │   ├── notifications/     # FCM registration, service and display
-│       │   ├── ui/                # XML-backed Fragments, dialogs and navigation
-│       │   ├── util/              # validation, languages and date helpers
-│       │   ├── viewmodel/
-│       │   ├── MainActivity.kt
-│       │   └── StudyHubApp.kt
-│       └── res/                   # layouts, English/Afrikaans/isiZulu resources
-├── docs/demo-script.md            # Suggested spoken demo walkthrough
-├── firestore.rules                # Firebase database authorization rules
-├── storage.rules                  # Firebase Storage authorization rules
-├── firebase.json
-├── server.js                      # Express + Firebase Admin REST API
-└── package.json
+│   ├── google-services.json            # Firebase config (use your own project)
+│   └── src/
+│       ├── main/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/com/studyhub/app/
+│       │   │   ├── MainActivity.kt
+│       │   │   ├── StudyHubApp.kt
+│       │   │   ├── data/
+│       │   │   │   ├── local/          # Room DB, DAO, entities, DataStore, secure credential store
+│       │   │   │   ├── model/          # Firestore / API models
+│       │   │   │   ├── remote/         # Retrofit client and API interface
+│       │   │   │   ├── repository/     # Auth, StudyHub and API repositories
+│       │   │   │   └── sync/           # WorkManager outbox sync
+│       │   │   ├── engagement/         # Attendance and polls
+│       │   │   ├── notifications/      # FCM service, reminders, push registration
+│       │   │   ├── ui/                 # Fragments, navigation, dialogs
+│       │   │   ├── util/               # Validators, policies, date and language helpers
+│       │   │   └── viewmodel/
+│       │   └── res/                    # Layouts, drawables, themes, strings (en, af, zu)
+│       ├── test/                       # JVM unit tests
+│       └── androidTest/                # Instrumented tests
+├── gradle/libs.versions.toml           # Version catalog
+├── gradle.properties
+└── build.gradle.kts
 ```
 
-## Build and test the Android app
+---
 
-Requirements: Android Studio, JDK 17, and Android SDK 34.
+## Getting started
 
+### Prerequisites
+- Android Studio (a recent stable release that supports AGP 8.4)
+- JDK 17 for Gradle (the project compiles to Java 11 bytecode)
+- Android SDK Platform 34
+- A Firebase project (see below)
+- A running StudyHub REST API (see [REST API](#rest-api))
+
+### 1. Clone and open
 ```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug
+git clone <your-repository-url>
+cd StudyHub
 ```
+Open the folder in Android Studio and let Gradle sync.
 
-The current JVM tests cover supported-language normalization/resource labels and task-outbox payload round-tripping. With an emulator or device attached, run the instrumented suite with:
+### 2. Set up Firebase
+1. Create a project in the [Firebase console](https://console.firebase.google.com/).
+2. Add an Android app with the package name `com.studyhub.app`, and add your debug SHA-1 and SHA-256 fingerprints.
+3. Download `google-services.json` and place it in `app/`.
+4. Enable these products:
+   - **Authentication**: Email/Password, Google and Apple providers
+   - **Cloud Firestore**
+   - **Storage** (past papers are stored under `group-papers`)
+   - **Cloud Messaging**
+5. Copy the **Web client ID** from the Google provider settings (used for "Continue with Google").
 
+### 3. Point the app at your API
+Edit `gradle.properties` (or pass the property on the command line):
+```properties
+studyhubApiBaseUrl=http://10.0.2.2:8080/
+studyhubGoogleWebClientId=<your-web-client-id>.apps.googleusercontent.com
+```
+`10.0.2.2` is the Android emulator's alias for your computer's `localhost`. On a physical device, use your computer's LAN IP.
+
+### 4. Build and run
 ```bash
-./gradlew :app:connectedDebugAndroidTest
+./gradlew assembleDebug        # build the debug APK
+./gradlew installDebug         # install on a connected device or emulator
+```
+Or press **Run** in Android Studio.
+
+---
+
+## Configuration
+
+Both values below become `BuildConfig` fields and can be set in `gradle.properties` or with `-P` on the command line.
+
+| Gradle property | BuildConfig field | Purpose | Default |
+|---|---|---|---|
+| `studyhubApiBaseUrl` | `API_BASE_URL` | Base URL of the StudyHub REST API (a trailing `/` is added if missing) | `https://example.com/` (overridden to `http://10.0.2.2:8080/` in `gradle.properties`) |
+| `studyhubGoogleWebClientId` | `GOOGLE_WEB_CLIENT_ID` | Web client ID for Google sign-in | The project's client ID |
+
+Example for a release build:
+```bash
+./gradlew assembleRelease -PstudyhubApiBaseUrl=https://api.your-domain.com/
 ```
 
-The Android GitHub Actions workflow runs `node --check server.js`, the JVM unit tests, and the debug APK build on pushes, pull requests, and manual dispatches. A successful run publishes `studyhub-debug-apk` as a downloadable artifact for 14 days. The workflow does not publish a signed Play Store release.
+**Endpoint rules** (`ApiEndpointPolicy`): the API URL must use **HTTPS**, with one exception. Debug builds may use plain `http` only for `localhost` and private network addresses (`10.x`, `172.16-31.x`, `192.168.x`). URLs with credentials, query strings or fragments, and the `example.com` placeholder, are rejected.
 
-## Firebase and Google configuration
-
-The checked-in `app/google-services.json` and default Google web client ID belong to the current Firebase project. For another project:
-
-1. Register an Android app with application ID `com.studyhub.app`, then replace `app/google-services.json` with that project's configuration.
-2. Enable **Email/Password** and **Google** sign-in in Firebase Authentication. Configure the Android SHA-1/SHA-256 fingerprints required for Google sign-in.
-3. Create the Firestore database, enable Firebase Storage and Cloud Messaging, and configure the project for Android 13+ notification delivery.
-4. Deploy the repository's Firestore and Storage rules from the project root:
-
-   ```bash
-   firebase deploy --only firestore:rules,storage
-   ```
-
-5. Set project-specific Gradle properties in `~/.gradle/gradle.properties` (do not commit local credentials):
-
-   ```properties
-   studyhubApiBaseUrl=https://your-deployed-api.example/
-   studyhubGoogleWebClientId=your-web-oauth-client-id.apps.googleusercontent.com
-   ```
-
-   The API base URL should include a trailing slash; Gradle adds it if omitted. The default is `https://example.com/`, so quote and push API calls remain best-effort until a real API URL is configured.
-6. For a release, create a protected Android signing configuration, store signing material in CI secrets, and build/test the release variant before publishing. Never put a service-account private key or upload keystore in the Android APK or Git.
-
-Firestore uses these collections: `users`, `groups` (with `messages` subcollections), `tasks`, `sessions`, `quotes`, `resources`, and the hashed `emailIndex`. The trusted API writes device tokens under `users/{uid}/deviceTokens`. The provided rules deny direct client access to token documents and protect user, group, task, and session writes.
+---
 
 ## REST API
 
-The API runs from `server.js` with Node.js 18 or later. It uses Firebase Admin credentials supplied by the hosting environment; no service-account key belongs in source control.
+The app calls a separate StudyHub REST API (the code describes it as an Express service using Firebase Admin). The service is **not part of this repository**, so run your own instance and set `studyhubApiBaseUrl`.
 
-| Method | Path | Authentication | Purpose |
-| --- | --- | --- | --- |
-| `GET` | `/` | Public | Health/status response |
-| `GET` | `/api/quote/today?lang=en\|af\|zu` | Public | Daily quote with localized Firestore fields or localized fallback |
-| `GET` | `/api/resources?subject=...` | Public | List up to 50 resources, optionally filtered by subject |
-| `POST` | `/api/resources` | Firebase ID token | Create a validated HTTP(S) resource as the caller |
-| `PUT` | `/api/resources/:id` | Firebase ID token | Edit a resource owned by the caller |
-| `DELETE` | `/api/resources/:id` | Firebase ID token | Delete a resource owned by the caller |
-| `POST` | `/api/notifications/register` | Firebase ID token | Register the caller's device token |
-| `POST` | `/api/notifications/unregister` | Firebase ID token | Remove the caller's device token on sign-out |
-| `POST` | `/api/notifications/group-message` | Firebase ID token | Verify a sent group message and notify other members |
-
-To run locally with Application Default Credentials:
-
-```bash
-npm install
-export GOOGLE_APPLICATION_CREDENTIALS=/secure/path/firebase-service-account.json
-npm start
+Protected routes expect the signed-in user's Firebase ID token:
+```
+Authorization: Bearer <firebase-id-token>
 ```
 
-Alternatively, provide `FIREBASE_SERVICE_ACCOUNT` as a JSON environment variable through your hosting provider's secret manager. Set `PORT` if required by the host. The Android browser client must use the deployed API's HTTPS URL; do not point a published app at localhost.
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/quote/today?lang=` | No | Daily motivational quote (`id`, `content`, `author`) |
+| GET | `/api/resources?subject=` | No | List shared study resources, optionally filtered by subject |
+| POST | `/api/resources` | Yes | Add a resource (`title`, `subject`, `url`) |
+| PUT | `/api/resources/{id}` | Yes | Update a resource |
+| DELETE | `/api/resources/{id}` | Yes | Delete a resource |
+| POST | `/api/notifications/register` | Yes | Register this device's FCM token |
+| POST | `/api/notifications/unregister` | Yes | Remove this device's FCM token |
+| POST | `/api/notifications/group-message` | Yes | Notify group members of a new chat message (`groupId`, `messageId`) |
+
+---
+
+## Security
+
+- **Authentication** is handled by Firebase. The app never stores a raw password.
+- **Offline login check**: the "remember me" feature keeps the email and a salted **PBKDF2-HMAC-SHA256** hash (120,000 iterations). The data is stored in `EncryptedSharedPreferences` (AES-256-GCM, key held in the Android Keystore). Hash comparison is constant time.
+- **Logging**: HTTP logging is `BASIC` in debug builds and off in release builds. Authorization headers, tokens and passwords are never logged.
+- **Past papers** are downloaded through authenticated Firebase Storage calls, not public URLs, and shared with PDF viewers through a `FileProvider`.
+- **Account isolation**: cached Room data is keyed by user ID, and the sync worker never replays one account's queue under another account.
+- **Secrets**: do not commit production keys. Keep your own `google-services.json` out of public repositories and restrict API keys in the Google Cloud console.
+
+---
+
+## Offline support and sync
+
+- Groups, tasks, sessions and chat messages are cached in a **Room** database (schema version 4, with migrations 2→3 and 3→4), so screens load without a connection.
+- Task changes made offline are saved to a durable **outbox** table. `PendingTaskSyncWorker` (WorkManager) replays them once the device is online and the same user is signed in.
+- A periodic `PlanningReminderWorker` runs every 15 minutes and posts reminders for tasks and sessions due within the hour, using cached data.
+- Offline sync can be turned off in **Profile → Settings**.
+
+---
+
+## Languages
+
+The app UI is available in **English**, **Afrikaans** and **isiZulu**. Students can switch language in settings, and the choice is stored as a BCP-47 tag (`en`, `af`, `zu`) and applied through Android's per-app language support. String resources live in `res/values`, `res/values-af` and `res/values-zu`.
+
+---
+
+## Testing
+
+### Unit tests (JVM)
+```bash
+./gradlew testDebugUnitTest
+```
+Reports are written to `app/build/reports/tests/testDebugUnitTest/index.html`.
+
+| Test class | Covers |
+|---|---|
+| `ValidatorsTest` | Email, name, password and date-of-birth validation |
+| `PlanningPolicyTest` | Task and session rules, points, reminder timing |
+| `EngagementPolicyTest` | Attendance percentage and poll validation and voting |
+| `ApiEndpointPolicyTest` | HTTPS and local-debug endpoint rules |
+| `AppLanguagesTest` | Language tag normalization |
+| `TaskSyncCodecTest` | Encoding and decoding of queued task operations |
+| `ChatComposerTest` | Chat composer state while editing and sending |
+
+### Instrumented tests (emulator or device)
+```bash
+./gradlew connectedDebugAndroidTest
+```
+`AccountCacheMigrationTest` checks the Room migrations and per-account cache, and `FeatureStorageTest` checks local feature storage.
+
+---
+
+## Continuous integration
+
+GitHub Actions runs the build and unit tests on every push and pull request. The workflow is defined in `.github/workflows/android-ci.yml`. Test reports are uploaded as a build artifact.
+
+---
 
 
-## AI use
+## Author
 
-This repository was updated with AI coding assistance for resource localization, offline-sync and push-notification implementation, Firebase/API integration, tests, and documentation. 
-
-## Group planning update (3 November 2026)
-
-- Groups now open a workspace linking their tasks, sessions, and chat. Members can
-  join using the group code displayed in that workspace. Codes should only be
-  shared with intended members; this is code-based joining, not approval-based admission.
-- Task and session forms offer Personal or a joined group. Tasks select a real
-  member UID, with member-directory names where available and a UID fallback offline.
-  Private user profiles are not exposed to group members.
-- Group members can read shared planning. Only the task creator or assigned member
-  can change completion; only the creator can delete the task. Personal records
-  stay private. Tasks preserve the original creator when an assignee completes them.
-- Session date, start time, and end time can be selected. Sessions must start in
-  the future and end later on the same selected day. Invalid titles/times are rejected.
-- Profile statistics derive from distinct completed tasks assigned to the current
-  user (legacy unassigned personal tasks count for their owner): 10 points each.
-  Reopening/deleting a task removes its points. This is a current completion score,
-  not a lifetime reward balance; replaying a completion cannot award extra points.
-- A local WorkManager check runs approximately every 15 minutes and reminds the
-  signed-in user of assigned incomplete tasks / attended sessions within the next
-  hour. It respects notification permission/preferences and uses cached data offline.
-  Delivery can be delayed by Android battery restrictions. These local reminders
-  are separate from the existing FCM group-message push pipeline.
-- Room v4 adds account-qualified keys for shared groups/tasks/sessions/messages,
-  preserving v3 cached data and the pending task queue.
-
-### Required next-stage configuration
-
-Deploy the updated `firestore.rules` to your Firebase project before testing shared
-planning against live Firebase. This code update does not deploy cloud rules or
-verify API hosting, Google SSO, or live FCM delivery. Keep service-account keys and
-signing material out of Git. Member names become available after create/join;
-older memberships can display UID labels until their directory entries are populated.
-
-### Verification
-
-- JVM: `./gradlew :app:testDebugUnitTest :app:assembleDebug`
-- Firestore emulator (isolated demo project): `npm install` then `npm run test:rules`
-- Device migration test: `./gradlew :app:connectedDebugAndroidTest`
-- See `docs/group-planning-checks.md` for physical-device checks.
+**Buchule**: OPSC6311 / OPSC6312 coursework.
